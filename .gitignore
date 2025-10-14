@@ -3,3 +3,18 @@
 
 # Log files
 firebase-debug.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Data files - Depending on the project, you might want to ignore data files
+# For now, we will commit the processed data as part of the EDA checkpoint.
+# *.csv
+# *.parquet
+
+# Model files - Usually ignored as they can be large
+*.pkl
