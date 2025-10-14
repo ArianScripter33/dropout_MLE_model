@@ -17,13 +17,19 @@ Construir un prototipo funcional del componente de análisis predictivo de SAREP
 *   **FR-03: Interpretabilidad del Modelo:** El sistema debe ser capaz de identificar y mostrar las 3-5 características principales que influyeron en la predicción de un estudiante específico (explicabilidad local, ej. usando SHAP).
 *   **FR-04: Dashboard de Simulación:** Debe existir una interfaz web simple (dashboard) que permita a un usuario introducir datos de un estudiante y ver la predicción y sus factores.
 
-## 4. Requisitos No Funcionales (Cómo DEBE ser el sistema)
+## 4. Requisitos Futuros (v2.0)
+
+*   **FR-05 (Auto-Optimización):** El sistema deberá incorporar un ciclo de optimización de hiperparámetros automatizado que se ejecute periódicamente (ej. trimestralmente).
+*   **FR-06 (Monitoreo de Drift):** El sistema deberá incluir un módulo de monitoreo que alerte a los administradores si la precisión del modelo en producción cae por debajo de un umbral predefinido.
+*   **FR-07 (Ingeniería de Características Sugerida):** El sistema debería analizar los datos y sugerir nuevas características potenciales al equipo de ciencia de datos.
+
+## 5. Requisitos No Funcionales (Cómo DEBE ser el sistema)
 
 *   **NFR-01: Rendimiento del Modelo:** El modelo predictivo debe alcanzar un Área Bajo la Curva (AUC) mínima de **0.85** en el conjunto de datos de prueba para ser considerado viable.
 *   **NFR-02: Documentación:** Todo el código debe estar comentado y el proceso debe ser reproducible a través de los Jupyter Notebooks.
 *   **NFR-03: Modularidad:** El código para el preprocesamiento de datos y el entrenamiento del modelo debe estar en funciones reutilizables dentro de la carpeta `/src`.
 
-## 5. Fuera de Alcance (Lo que NO haremos en esta versión)
+## 6. Fuera de Alcance (Lo que NO haremos en esta versión)
 
 *   Integración con bases de datos en tiempo real de la UNRC.
 *   Sistemas de autenticación de usuarios.

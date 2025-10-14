@@ -21,11 +21,15 @@ El dataset original se encuentra en la carpeta `/data/raw/`.
 
 El proyecto sigue un flujo de trabajo de MLOps moderno nativo de la nube (Google Cloud Platform), desde el procesamiento de datos hasta el despliegue del modelo.
 
+
 *   **Procesamiento de Datos:** **Google BigQuery** (Enfoque ELT basado en SQL).
 *   **Modelo Principal:** `XGBoost Classifier`.
 *   **Entrenamiento y Optimización:** **Vertex AI Training** con **Vertex AI Vizier** (sucesor de MLE-Star).
 *   **Despliegue del Modelo:** Artefacto guardado en **Google Cloud Storage**.
 *   **Dashboard de Prototipo:** Aplicación de **Streamlit** desplegada en **Cloud Run**.
+
+*La visión a largo plazo de la arquitectura está inspirada en los principios de los agentes de ingeniería de ML de vanguardia como **MLE-Star de Google**, apuntando a un sistema que no solo predice, sino que se auto-optimiza y se mantiene en el tiempo.*
+
 
 ## 4. Estructura del Repositorio
 
