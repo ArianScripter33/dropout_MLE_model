@@ -5,3 +5,4 @@ seaborn
 ipykernel
 jupyter
 streamlit
+scikit-learn
