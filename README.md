@@ -19,14 +19,20 @@ El dataset original se encuentra en la carpeta `/data/raw/`.
 
 ## 3. Metodología y Arquitectura Tecnológica
 
-El proyecto sigue un flujo de trabajo de MLOps moderno nativo de la nube (Google Cloud Platform), desde el procesamiento de datos hasta el despliegue del modelo.
+El proyecto adopta un enfoque híbrido y fásico:
 
+1.  **Fase 1: Prototipado Local (Implementación Actual):**
+    *   El trabajo se centra en un entorno de desarrollo local (Jupyter Notebooks, Google Colab) para una rápida iteración.
+    *   **Procesamiento de Datos:** Se utiliza la librería **Pandas** para la manipulación y preprocesamiento de los datos.
+    *   **Modelo Principal:** `XGBoost Classifier`.
+    *   **Optimización de Hiperparámetros:** Se emplea **Optuna** para una búsqueda eficiente de los mejores hiperparámetros.
+    *   **Resultado:** Un modelo validado y un pipeline de ciencia de datos completo que funciona de manera local.
 
-*   **Procesamiento de Datos:** **Google BigQuery** (Enfoque ELT basado en SQL).
-*   **Modelo Principal:** `XGBoost Classifier`.
-*   **Entrenamiento y Optimización:** **Vertex AI Training** con **Vertex AI Vizier** (sucesor de MLE-Star).
-*   **Despliegue del Modelo:** Artefacto guardado en **Google Cloud Storage**.
-*   **Dashboard de Prototipo:** Aplicación de **Streamlit** desplegada en **Cloud Run**.
+2.  **Fase 2: Arquitectura de Producción (Visión a Futuro):**
+    *   Para escalar el prototipo a un sistema de producción, se describe una arquitectura nativa de la nube en **Google Cloud Platform (GCP)**.
+    *   **Procesamiento de Datos:** **Google BigQuery** para un procesamiento ELT escalable basado en SQL.
+    *   **Entrenamiento y Optimización:** **Vertex AI Training** con **Vertex AI Vizier** para la gestión de trabajos de entrenamiento y optimización de hiperparámetros a gran escala.
+    *   **Despliegue:** El artefacto del modelo se almacena en **Google Cloud Storage** y el dashboard de Streamlit se despliega como un servicio autoescalable en **Cloud Run**.
 
 *La visión a largo plazo de la arquitectura está inspirada en los principios de los agentes de ingeniería de ML de vanguardia como **MLE-Star de Google**, apuntando a un sistema que no solo predice, sino que se auto-optimiza y se mantiene en el tiempo.*
 
