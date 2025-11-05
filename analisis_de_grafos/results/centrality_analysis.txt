@@ -1,0 +1,28 @@
+--- ANÁLISIS DE CENTRALIDAD DEL GRAFO ---
+
+1. Centralidad de Grado (Ponderada) - Factores más conectados
+   Mide la fuerza total de las conexiones de un nodo.
+------------------------------------------------------------
+- No: 489.00
+- Aprobé todas o casi todas las materias que cursé: 475.00
+- Sí: 334.00
+- Sí, totalmente: 287.00
+- No sabía que existían: 278.00
+
+2. Centralidad de Intermediación - Factores 'puente' más críticos
+   Mide la frecuencia con la que un nodo conecta diferentes grupos de factores.
+--------------------------------------------------------------------------
+- No sabía que existían: 0.0975
+- Reprobé más de la mitad de las materias que cursé: 0.0969
+- Contaduría y Finanzas: 0.0723
+- Sí, totalmente: 0.0711
+- No: 0.0676
+
+3. Centralidad de Vector Propio - Factores más influyentes
+   Mide la influencia de un nodo al estar conectado a otros nodos influyentes.
+---------------------------------------------------------------------------
+- No: 0.4415
+- Aprobé todas o casi todas las materias que cursé: 0.4388
+- Sí: 0.3211
+- Sí, totalmente: 0.2910
+- No sabía que existían: 0.2800
