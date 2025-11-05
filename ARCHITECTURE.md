@@ -1,52 +1,68 @@
-# Arquitectura del Sistema SAREP (Prototipo Cloud-Native)
+# Arquitectura del Sistema SAREP: Un Enfoque Híbrido
 
-## 1. Visión General de la Arquitectura
+## 1. Visión General: Un Enfoque Híbrido y Fásico
 
-La arquitectura de este prototipo simula un entorno de producción en la nube, utilizando Google Cloud Platform (GCP) para asegurar la escalabilidad, reproducibilidad y eficiencia. El flujo de trabajo se centra en un enfoque ELT (Extract, Load, Transform) utilizando BigQuery como el motor principal de procesamiento de datos.
+Este proyecto adopta una estrategia de desarrollo en dos fases, diseñada para maximizar la velocidad de entrega de valor y, al mismo tiempo, construir una narrativa sólida para una solución escalable y de nivel de producción.
 
-## 2. Pipeline de Datos (ELT en BigQuery)
+*   **Fase 1: Construcción y Validación Local (Implementación Actual):** Enfocada en la creación rápida de un modelo de alto rendimiento en un entorno local (PC, Google Colab). El objetivo es validar la hipótesis, obtener métricas clave y tener un artefacto funcional sin la sobrecarga de la infraestructura en la nube.
+*   **Fase 2: Arquitectura de Producción Escalable (Visión para el Informe):** Describe la arquitectura ideal y robusta en Google Cloud Platform (GCP) que tomaría este prototipo y lo convertiría en un servicio empresarial sostenible, escalable y automatizado.
 
-1.  **Extracción y Carga (Extract & Load):**
-    *   El dataset crudo (`student-dropout-dataset.csv`) se carga manualmente en una tabla de BigQuery llamada `raw_student_data`.
+---
 
-2.  **Transformación (Transform):**
-    *   Se utiliza una serie de **consultas SQL o vistas materializadas** en BigQuery para realizar todo el preprocesamiento. Esto es mucho más rápido y escalable que usar Pandas en un notebook.
-    *   Las transformaciones incluyen:
-        *   Tipado de datos y limpieza.
-        *   Codificación de variables categóricas (usando `CASE WHEN ... THEN ...`).
-        *   Creación de nuevas características (Feature Engineering), como `Ratio_Aprobacion` y `Delta_Ratio_Aprobacion`.
-    *   El resultado final es una tabla limpia y lista para el modelo llamada `processed_student_features`.
+## 2. Fase 1: Prototipado y Validación Local (Implementación Actual)
 
-## 3. Pipeline de Entrenamiento y Optimización (Vertex AI)
+El flujo de trabajo actual se ejecuta íntegramente en un entorno local para agilizar la experimentación y el desarrollo.
 
-1.  **Entrenamiento (Vertex AI Training):**
-    *   Se empaqueta el código de `src/` en un contenedor de Docker.
-    *   Se lanza un **trabajo de entrenamiento personalizado** en Vertex AI. El script de entrenamiento se conecta a la tabla `processed_student_features` en BigQuery para obtener los datos.
-2.  **Optimización de Hiperparámetros (Vertex AI Vizier):**
-    *   El trabajo de entrenamiento en Vertex AI está configurado para usar **Vertex AI Vizier (el sucesor de MLE-Star)**.
-    *   Vizier gestiona el bucle de optimización: sugiere combinaciones de hiperparámetros, el trabajo de entrenamiento evalúa esa combinación, reporta el resultado (ej. AUC), y Vizier sugiere la siguiente combinación.
-3.  **Serialización (Google Cloud Storage):**
-    *   Una vez que Vizier encuentra la mejor combinación, el modelo final se entrena y se guarda como un artefacto (`xgboost_model.pkl`) en un bucket de Google Cloud Storage (GCS).
+1.  **Entorno de Desarrollo:**
+    *   **IDE:** Jupyter Notebooks o Google Colab.
+    *   **Librerías Principales:** Pandas, Scikit-learn, XGBoost, Matplotlib, Seaborn, y **Optuna** para la optimización de hiperparámetros.
 
-## 4. Frontend de Inferencia (Dashboard en Cloud Run)
+2.  **Pipeline de Datos y Modelo:**
+    *   **Carga y Preprocesamiento:** Los datos se cargan desde un archivo CSV local (`data/raw/data.csv`) en un DataFrame de Pandas. Todas las tareas de limpieza, transformación y ingeniería de características se realizan en memoria con Pandas.
+    *   **Optimización de Hiperparámetros:** Se utiliza **Optuna** para encontrar la combinación óptima de hiperparámetros para el modelo XGBoost de manera eficiente.
+    *   **Entrenamiento y Serialización:** El modelo final se entrena con los mejores hiperparámetros y se guarda como un archivo `xgboost_model.pkl` en el directorio local `/models`.
 
-1.  **Aplicación Contenerizada:** La aplicación de Streamlit (`app/dashboard.py`) se empaqueta en su propio contenedor de Docker.
-2.  **Despliegue:** Se despliega como un servicio en **Cloud Run**, lo que lo hace una aplicación web pública y escalable.
-3.  **Carga del Modelo:** Al iniciar, la aplicación se autentica con GCS y descarga/carga el modelo `xgboost_model.pkl` en memoria.
-4.  **Inferencia:** Realiza predicciones en tiempo real como se diseñó previamente.
+3.  **Dashboard de Simulación Local:**
+    *   La aplicación de Streamlit (`app/dashboard.py`) se ejecuta localmente.
+    *   Carga el modelo `xgboost_model.pkl` desde el disco local para realizar inferencias en tiempo real.
 
+**Ventaja de esta fase:** Rapidez, agilidad y enfoque total en la ciencia de datos para obtener un modelo funcional y métricas de rendimiento rápidamente.
 
-## 5. Hoja de Ruta de Arquitectura Futura: Hacia un Cerebro Analítico Autónomo
+---
 
-La arquitectura actual del prototipo (v1.0) está diseñada para ser robusta y reproducible. Sin embargo, la visión a largo plazo para SAREP se inspira en los paradigmas de AutoML de nueva generación, como el sistema **MLE-Star de Google** (Google Research, 2025).
+## 3. Fase 2: Arquitectura de Producción Escalable (Visión a Futuro)
 
-En una versión de producción (v2.0), el "Cerebro Analítico" evolucionaría de un modelo estático a un **sistema de auto-mejora continua**, incorporando las capacidades clave de MLE-Star:
+Esta sección describe cómo el prototipo local evolucionaría hacia una solución de producción robusta en Google Cloud Platform (GCP).
 
-*   **Ingeniería de Características Automatizada (Automated Feature Engineering):** Un agente de IA, basado en un LLM, analizaría continuamente los datos de entrada y propondría nuevas características (features) para mejorar el poder predictivo del modelo, yendo más allá de la ingeniería manual inicial.
-*   **Pipeline de Auto-Sanación (Self-Healing Pipeline):** El sistema sería capaz de detectar problemas comunes como el **data leakage** o el **training-serving skew** (desajuste entre entrenamiento e inferencia) y sugerir o aplicar correcciones de forma autónoma.
-*   **Monitoreo y Re-entrenamiento Proactivo (Proactive Monitoring and Retraining):** El agente monitorearía el rendimiento del modelo en producción para detectar el **model drift** (degradación del modelo con el tiempo). Al detectar una caída en el rendimiento, podría iniciar automáticamente un ciclo de re-entrenamiento con datos frescos para mantener la precisión.
+### 3.1. Pipeline de Datos (ELT en BigQuery)
 
-Esta visión transforma a SAREP de una herramienta predictiva a una **plataforma de inteligencia viva**, que aprende y se adapta, asegurando la sostenibilidad y la eficacia a largo plazo de la inversión.
+*   **Justificación:** Procesar grandes volúmenes de datos con Pandas en una máquina virtual tiene límites. **BigQuery** ofrece una capacidad de procesamiento masivamente paralela y un enfoque ELT (Extract, Load, Transform) que es ideal para la escala.
+*   **Flujo:**
+    1.  **Extracción y Carga (E/L):** El dataset crudo se ingesta y almacena en una tabla de BigQuery (`raw_student_data`).
+    2.  **Transformación (T):** Se ejecutan **consultas SQL** sobre BigQuery para realizar todo el preprocesamiento. Esto es órdenes de magnitud más rápido y escalable. El resultado es una tabla limpia y lista para el modelo (`processed_student_features`).
 
-**Referencia Clave:**
-*   Google Research. (2025). *MLE-Star: A State-of-the-Art Machine Learning Engineering Agent*. Google Research Blog. [Enlace del blog: https://research.google/blog/mle-star-a-state-of-the-art-machine-learning-engineering-agents/]
+### 3.2. Pipeline de Entrenamiento y Optimización (Vertex AI)
+
+*   **Justificación:** **Vertex AI** proporciona un entorno gestionado para MLOps, eliminando la necesidad de administrar infraestructura y facilitando la automatización y reproducibilidad.
+*   **Flujo:**
+    1.  **Entrenamiento Personalizado:** El código de `src/` se empaqueta en un contenedor Docker y se ejecuta como un **trabajo de entrenamiento personalizado** en Vertex AI, que lee los datos directamente desde BigQuery.
+    2.  **Optimización de Hiperparámetros con Vertex AI Vizier:** En lugar de Optuna, se utiliza **Vertex AI Vizier**. Vizier es un servicio de optimización de caja negra totalmente gestionado, ideal para realizar búsquedas inteligentes de hiperparámetros a gran escala y gestionar cientos de "trials" de forma automática.
+    3.  **Registro y Serialización:** El mejor modelo se registra en el **Vertex AI Model Registry** y el artefacto (`.pkl`) se guarda en un bucket de **Google Cloud Storage (GCS)**.
+
+### 3.3. Frontend de Inferencia (Dashboard en Cloud Run)
+
+*   **Justificación:** Para que el dashboard sea una aplicación web pública, segura y autoescalable, **Cloud Run** es la solución perfecta.
+*   **Flujo:**
+    1.  **Contenerización:** La aplicación de Streamlit se empaqueta en un contenedor Docker.
+    2.  **Despliegue:** Se despliega como un servicio en Cloud Run. Cloud Run escala automáticamente (incluso a cero) según el tráfico, por lo que solo se paga por el uso real.
+    3.  **Inferencia:** La aplicación en Cloud Run se autentica de forma segura, descarga el modelo desde GCS al iniciar y sirve las predicciones.
+
+## 4. Visión a Largo Plazo: Hacia un Cerebro Analítico Autónomo con MLE-Star
+
+La arquitectura de producción (Fase 2) es la base para una visión aún más ambiciosa, inspirada en los agentes de ML de nueva generación como **MLE-Star de Google**. En una futura versión, el sistema no solo predeciría, sino que se auto-mejoraría continuamente:
+
+*   **Ingeniería de Características Automatizada:** Un agente de IA propondría nuevas características para mejorar el modelo.
+*   **Pipeline de Auto-Sanación:** El sistema detectaría y corregiría problemas como el *data leakage* de forma autónoma.
+*   **Monitoreo y Re-entrenamiento Proactivo:** El agente monitorearía el *model drift* y lanzaría ciclos de re-entrenamiento automáticamente para mantener la precisión del modelo a lo largo del tiempo.
+
+Esta visión transforma a SAREP de una herramienta predictiva a una **plataforma de inteligencia viva**, asegurando su relevancia y eficacia a largo plazo.
