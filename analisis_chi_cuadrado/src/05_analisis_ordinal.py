@@ -5,8 +5,8 @@ from scipy.stats import kruskal, mannwhitneyu
 import os
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = "analisis_chi_cuadrado/data/processed/datos_limpios.csv"
-RESULTS_PATH = "analisis_chi_cuadrado/results"
+PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+RESULTS_PATH = os.path.join("..", "results")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -26,7 +26,7 @@ rendimiento_map = {
     'Aprobé aproximadamente la mitad de las materias': 'Medio Rendimiento',
     'Reprobé más de la mitad de las materias que cursé': 'Bajo Rendimiento'
 }
-df['rendimiento_ordinal'] = df['rendimiento_pasado'].map(rendimiento_map)
+df['rendimiento_ordinal'] = df['rendimiento_semestre_pasado'].map(rendimiento_map)
 
 expectativas_map = {
     'Sí, totalmente': 'Satisfecho',
@@ -94,16 +94,16 @@ def analizar_y_visualizar_ordinal(dataframe, variable_independiente, grupos_a_co
 
 
 # 5a. Frecuencia vs. Rendimiento (Ordinal) -> Kruskal-Wallis
-analizar_y_visualizar_ordinal(df, 'frecuencia_pensamientos', 'rendimiento_ordinal', kruskal, 
+analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'rendimiento_ordinal', kruskal, 
                               "Frecuencia de Pensamientos vs. Rendimiento Académico", 
                               "ordinal_rendimiento_vs_frecuencia.png")
 
 # 5b. Frecuencia vs. Beca (Binario) -> Mann-Whitney U
-analizar_y_visualizar_ordinal(df, 'frecuencia_pensamientos', 'tiene_beca', mannwhitneyu, 
+analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'beca_actual', mannwhitneyu, 
                               "Frecuencia de Pensamientos vs. Tenencia de Beca", 
                               "ordinal_beca_vs_frecuencia.png")
 
 # 5c. Frecuencia vs. Expectativas (Ordinal) -> Kruskal-Wallis
-analizar_y_visualizar_ordinal(df, 'frecuencia_pensamientos', 'expectativas_ordinal', kruskal, 
+analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'expectativas_ordinal', kruskal, 
                               "Frecuencia de Pensamientos vs. Expectativas de Carrera", 
                               "ordinal_expectativas_vs_frecuencia.png")

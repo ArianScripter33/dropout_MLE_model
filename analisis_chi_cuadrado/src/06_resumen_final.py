@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import chi2_contingency, kruskal, mannwhitneyu
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = "analisis_chi_cuadrado/data/processed/datos_limpios.csv"
-RESULTS_PATH = "analisis_chi_cuadrado/results"
+PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+RESULTS_PATH = os.path.join("..", "results")
 
 # --- Cargar Datos ---
 try:
@@ -16,7 +16,7 @@ except FileNotFoundError:
 
 # --- Funciones de Cálculo ---
 
-def get_chi2_pvalue(df, var_independiente, var_dependiente='considero_abandonar'):
+def get_chi2_pvalue(df, var_independiente, var_dependiente='abandono_considerado'):
     """Calcula el p-valor de Chi-Cuadrado para dos variables categóricas."""
     contingency_table = pd.crosstab(df[var_independiente], df[var_dependiente])
     if contingency_table.shape[0] < 2 or contingency_table.shape[1] < 2:
@@ -48,7 +48,7 @@ rendimiento_map = {
     'Aprobé aproximadamente la mitad de las materias': 'Medio Rendimiento',
     'Reprobé más de la mitad de las materias que cursé': 'Bajo Rendimiento'
 }
-df['rendimiento_ordinal'] = df['rendimiento_pasado'].map(rendimiento_map)
+df['rendimiento_ordinal'] = df['rendimiento_semestre_pasado'].map(rendimiento_map)
 
 expectativas_map = {
     'Sí, totalmente': 'Satisfecho',
@@ -65,29 +65,29 @@ print("--- Resumen Final y Tablas de Contingencia (Porcentajes Fila-por-Fila) --
 # --- 1. Tablas de Contingencia con P-valores Dinámicos ---
 
 # H1: Rendimiento vs Abandono
-p_h1 = get_chi2_pvalue(df, 'rendimiento_pasado')
-ct_h1 = pd.crosstab(df['rendimiento_ordinal'], df['considero_abandonar'], normalize='index') * 100
+p_h1 = get_chi2_pvalue(df, 'rendimiento_semestre_pasado')
+ct_h1 = pd.crosstab(df['rendimiento_ordinal'], df['abandono_considerado'], normalize='index') * 100
 print("\nTabla H1: Rendimiento vs. Abandono (%)")
 print(ct_h1.round(1))
 print(f"P-valor H1: {p_h1:.3f}")
 
 # H2a: Beca vs Abandono
-p_h2a = get_chi2_pvalue(df, 'tiene_beca')
-ct_h2a = pd.crosstab(df['tiene_beca'], df['considero_abandonar'], normalize='index') * 100
+p_h2a = get_chi2_pvalue(df, 'beca_actual')
+ct_h2a = pd.crosstab(df['beca_actual'], df['abandono_considerado'], normalize='index') * 100
 print("\nTabla H2a: Beca vs. Abandono (%)")
 print(ct_h2a.round(1))
 print(f"P-valor H2a: {p_h2a:.3f}")
 
 # H2b: Desafío Económico vs Abandono
 p_h2b = get_chi2_pvalue(df, 'desafio_economico')
-ct_h2b = pd.crosstab(df['desafio_economico'], df['considero_abandonar'], normalize='index') * 100
+ct_h2b = pd.crosstab(df['desafio_economico'], df['abandono_considerado'], normalize='index') * 100
 print("\nTabla H2b: Desafío Económico vs. Abandono (%)")
 print(ct_h2b.round(1))
 print(f"P-valor H2b: {p_h2b:.3f}")
 
 # H3: Expectativas vs Abandono
 p_h3 = get_chi2_pvalue(df, 'expectativas_carrera')
-ct_h3 = pd.crosstab(df['expectativas_ordinal'], df['considero_abandonar'], normalize='index') * 100
+ct_h3 = pd.crosstab(df['expectativas_ordinal'], df['abandono_considerado'], normalize='index') * 100
 print("\nTabla H3: Expectativas vs. Abandono (%)")
 print(ct_h3.round(1))
 print(f"P-valor H3: {p_h3:.3f}")
@@ -95,9 +95,9 @@ print(f"P-valor H3: {p_h3:.3f}")
 
 # --- 2. Resumen de Insights para el Informe (Ordinal) ---
 
-p_ord_rendimiento = get_kruskal_pvalue(df, 'frecuencia_pensamientos', 'rendimiento_ordinal')
-p_ord_expectativas = get_kruskal_pvalue(df, 'frecuencia_pensamientos', 'expectativas_ordinal')
-p_ord_beca = get_kruskal_pvalue(df, 'frecuencia_pensamientos', 'tiene_beca') # Usará Mann-Whitney internamente
+p_ord_rendimiento = get_kruskal_pvalue(df, 'frecuencia_abandono', 'rendimiento_ordinal')
+p_ord_expectativas = get_kruskal_pvalue(df, 'frecuencia_abandono', 'expectativas_ordinal')
+p_ord_beca = get_kruskal_pvalue(df, 'frecuencia_abandono', 'beca_actual') # Usará Mann-Whitney internamente
 
 print("\n=====================================================")
 print("INSIGHTS CLAVE PARA EL INFORME (Validación Hipotética)")

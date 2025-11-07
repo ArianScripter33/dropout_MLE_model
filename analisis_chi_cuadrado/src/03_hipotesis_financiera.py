@@ -5,8 +5,8 @@ from scipy.stats import chi2_contingency
 import os
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = "analisis_chi_cuadrado/data/processed/datos_limpios.csv"
-RESULTS_PATH = "analisis_chi_cuadrado/results"
+PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+RESULTS_PATH = os.path.join("..", "results")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -21,7 +21,7 @@ def analizar_y_visualizar(dataframe, variable_independiente, titulo, nombre_arch
     print(f"\n--- Análisis: {titulo} ---")
     
     # Tabla de contingencia
-    contingency_table = pd.crosstab(dataframe[variable_independiente], dataframe['considero_abandonar'])
+    contingency_table = pd.crosstab(dataframe[variable_independiente], dataframe['abandono_considerado'])
     print("\nTabla de Contingencia:")
     print(contingency_table)
 
@@ -64,7 +64,7 @@ def analizar_y_visualizar(dataframe, variable_independiente, titulo, nombre_arch
     print(f"Gráfico guardado en: {output_path}")
 
 # --- Hipótesis 2a: Beca vs. Abandono ---
-analizar_y_visualizar(df, 'tiene_beca', 'Intención de Abandono según Tenencia de Beca', 'hipotesis_2a_beca_vs_abandono.png')
+analizar_y_visualizar(df, 'beca_actual', 'Intención de Abandono según Tenencia de Beca', 'hipotesis_2a_beca_vs_abandono.png')
 
 # --- Hipótesis 2b: Desafío Económico vs. Abandono ---
 # Crear variable derivada 'desafio_economico'

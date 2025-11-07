@@ -5,8 +5,8 @@ from scipy.stats import chi2_contingency
 import os
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = "analisis_chi_cuadrado/data/processed/datos_limpios.csv"
-RESULTS_PATH = "analisis_chi_cuadrado/results"
+PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+RESULTS_PATH = os.path.join("..", "results")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -14,7 +14,7 @@ try:
     df = pd.read_csv(PROCESSED_DATA_PATH)
 except FileNotFoundError:
     print(f"Error: No se encontró el archivo de datos procesados en {PROCESSED_DATA_PATH}")
-    print("Por favor, ejecuta primero el script '01_analisis_exploratorio.py'")
+    print("Por favor, ejecuta primero el script '00_preprocesamiento.py' y '01_analisis_exploratorio.py'")
     exit()
 
 # --- Hipótesis 1: Rendimiento Académico vs. Intención de Abandono ---
@@ -22,7 +22,7 @@ except FileNotFoundError:
 print("--- Análisis de Hipótesis 1: Rendimiento Académico y Abandono ---")
 
 # Crear tabla de contingencia
-contingency_table = pd.crosstab(df['rendimiento_pasado'], df['considero_abandonar'])
+contingency_table = pd.crosstab(df['rendimiento_semestre_pasado'], df['abandono_considerado'])
 
 # Reordenar las filas para una mejor visualización
 order = [

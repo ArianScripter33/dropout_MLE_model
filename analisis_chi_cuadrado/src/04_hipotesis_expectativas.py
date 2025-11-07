@@ -5,8 +5,8 @@ from scipy.stats import chi2_contingency
 import os
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = "analisis_chi_cuadrado/data/processed/datos_limpios.csv"
-RESULTS_PATH = "analisis_chi_cuadrado/results"
+PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+RESULTS_PATH = os.path.join("..", "results")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -21,7 +21,7 @@ except FileNotFoundError:
 print("--- Análisis de Hipótesis 3: Expectativas de Carrera y Abandono ---")
 
 # Crear tabla de contingencia
-contingency_table = pd.crosstab(df['expectativas_carrera'], df['considero_abandonar'])
+contingency_table = pd.crosstab(df['expectativas_carrera'], df['abandono_considerado'])
 
 # Reordenar para una mejor visualización
 order = [
