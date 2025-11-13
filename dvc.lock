@@ -1,0 +1,121 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python analisis_chi_cuadrado/src/00_preprocesamiento.py
+    deps:
+    - path: data/raw/_Pulso de la Trayectoria Estudiantil UNRC_ (Respuestas) - 
+        Respuestas de formulario 1.csv
+      hash: md5
+      md5: 79e889688d248b7b1bc080f38368f278
+      size: 27018
+    params:
+      params.yaml:
+        preprocess.seed: 42
+    outs:
+    - path: data/processed/datos_limpios.csv
+      hash: md5
+      md5: 2bd21d1c6fc999da6fd2518c762bb0a3
+      size: 25962
+    - path: metrics/preprocess.json
+      hash: md5
+      md5: 57f0bcac89765c04efffec7ee5cc9874
+      size: 554
+  exploratory:
+    cmd: python analisis_chi_cuadrado/src/01_analisis_exploratorio.py
+    deps:
+    - path: data/processed/datos_limpios.csv
+      hash: md5
+      md5: 2bd21d1c6fc999da6fd2518c762bb0a3
+      size: 25962
+    params:
+      params.yaml:
+        analyze.alpha: 0.05
+    outs:
+    - path: metrics/exploratory.json
+      hash: md5
+      md5: c1fc71ed4cd90d2da8f161512f42ef5a
+      size: 421
+  hipotesis1:
+    cmd: python analisis_chi_cuadrado/src/02_hipotesis_rendimiento.py
+    deps:
+    - path: data/processed/datos_limpios.csv
+      hash: md5
+      md5: 2bd21d1c6fc999da6fd2518c762bb0a3
+      size: 25962
+    params:
+      params.yaml:
+        analyze.alpha: 0.05
+    outs:
+    - path: metrics/hipotesis1.json
+      hash: md5
+      md5: 8093a3f9948edb9a535de398f8834db7
+      size: 604
+    - path: results/hipotesis_1_rendimiento_vs_abandono.png
+      hash: md5
+      md5: b9ecb436143dd77477d77715c368e4df
+      size: 53279
+  hipotesis2:
+    cmd: python analisis_chi_cuadrado/src/03_hipotesis_financiera.py
+    deps:
+    - path: data/processed/datos_limpios.csv
+      hash: md5
+      md5: 2bd21d1c6fc999da6fd2518c762bb0a3
+      size: 25962
+    params:
+      params.yaml:
+        analyze.alpha: 0.05
+    outs:
+    - path: metrics/hipotesis2.json
+      hash: md5
+      md5: 9bd0831aaec2d72a1a30049602073d36
+      size: 935
+    - path: results/hipotesis_2a_beca_vs_abandono.png
+      hash: md5
+      md5: bec45ec00d4c1211fb4cba7773bc6950
+      size: 30838
+    - path: results/hipotesis_2b_economia_vs_abandono.png
+      hash: md5
+      md5: 92eee0a4d918b531650188b7f1f76a9c
+      size: 31176
+  hipotesis3:
+    cmd: python analisis_chi_cuadrado/src/04_hipotesis_expectativas.py
+    deps:
+    - path: data/processed/datos_limpios.csv
+      hash: md5
+      md5: 2bd21d1c6fc999da6fd2518c762bb0a3
+      size: 25962
+    params:
+      params.yaml:
+        analyze.alpha: 0.05
+    outs:
+    - path: metrics/hipotesis3.json
+      hash: md5
+      md5: 7336705f7efe679df1648441364d3a8c
+      size: 495
+    - path: results/hipotesis_3_expectativas_vs_abandono.png
+      hash: md5
+      md5: 9de6631760b36f47b9bc9bf805a4df2d
+      size: 43663
+  ordinal:
+    cmd: python analisis_chi_cuadrado/src/05_analisis_ordinal.py
+    deps:
+    - path: data/processed/datos_limpios.csv
+      hash: md5
+      md5: 2bd21d1c6fc999da6fd2518c762bb0a3
+      size: 25962
+    params:
+      params.yaml:
+        analyze.alpha: 0.05
+    outs:
+    - path: metrics/ordinal.json
+      hash: md5
+      md5: 06956892c3377f7ef5952e3735371c55
+      size: 1165
+    - path: results/ordinal_expectativas_vs_frecuencia.png
+      hash: md5
+      md5: d901fba52a223cc9284b509b04e395ec
+      size: 32470
+    - path: results/ordinal_rendimiento_vs_frecuencia.png
+      hash: md5
+      md5: b53dda16794be811cfcec7650a64d5d0
+      size: 31648

@@ -1,0 +1,14 @@
+# Parámetros para el pipeline DVC
+preprocess:
+  seed: 42
+  remove_nulls: true
+
+analyze:
+  alpha: 0.05
+  method: "chi_squared"
+  visualization_theme: "seaborn-v0_8-whitegrid"
+
+visualize:
+  fig_size: [12, 7]
+  color_palette: ["#2ca02c", "#d62728"]
+  dpi: 300

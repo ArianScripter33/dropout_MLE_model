@@ -1,0 +1,74 @@
+# dvc.yaml
+stages:
+  preprocess:
+    cmd: python analisis_chi_cuadrado/src/00_preprocesamiento.py
+    deps:
+    - data/raw/_Pulso de la Trayectoria Estudiantil UNRC_ (Respuestas) - Respuestas de formulario 1.csv
+    params:
+    - preprocess.seed
+    outs:
+    - data/processed/datos_limpios.csv
+    metrics:
+    - metrics/preprocess.json
+
+  exploratory:
+    cmd: python analisis_chi_cuadrado/src/01_analisis_exploratorio.py
+    deps:
+    - data/processed/datos_limpios.csv
+    params:
+    - analyze.alpha
+    metrics:
+    - metrics/exploratory.json
+
+  hipotesis1:
+    cmd: python analisis_chi_cuadrado/src/02_hipotesis_rendimiento.py
+    deps:
+    - data/processed/datos_limpios.csv
+    params:
+    - analyze.alpha
+    outs:
+    - results/hipotesis_1_rendimiento_vs_abandono.png
+    metrics:
+    - metrics/hipotesis1.json
+
+  hipotesis2:
+    cmd: python analisis_chi_cuadrado/src/03_hipotesis_financiera.py
+    deps:
+    - data/processed/datos_limpios.csv
+    params:
+    - analyze.alpha
+    outs:
+    - results/hipotesis_2a_beca_vs_abandono.png
+    - results/hipotesis_2b_economia_vs_abandono.png
+    metrics:
+    - metrics/hipotesis2.json
+
+  hipotesis3:
+    cmd: python analisis_chi_cuadrado/src/04_hipotesis_expectativas.py
+    deps:
+    - data/processed/datos_limpios.csv
+    params:
+    - analyze.alpha
+    outs:
+    - results/hipotesis_3_expectativas_vs_abandono.png
+    metrics:
+    - metrics/hipotesis3.json
+
+  ordinal:
+    cmd: python analisis_chi_cuadrado/src/05_analisis_ordinal.py
+    deps:
+    - data/processed/datos_limpios.csv
+    params:
+    - analyze.alpha
+    outs:
+    - results/ordinal_rendimiento_vs_frecuencia.png
+    - results/ordinal_expectativas_vs_frecuencia.png
+    metrics:
+    - metrics/ordinal.json
+
+  resumen:
+    cmd: python analisis_chi_cuadrado/src/06_resumen_final.py
+    deps:
+    - data/processed/datos_limpios.csv
+    metrics:
+    - metrics/resumen.json
