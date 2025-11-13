@@ -18,3 +18,10 @@ __pycache__/
 
 # Model files - Usually ignored as they can be large
 *.pklmodels/xgboost_model.pkl
+
+# Streamlit config folder
+.streamlit/
+
+# Other model files
+models/feature_names.pkl
+models/preprocessor.pkl
