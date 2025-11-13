@@ -17,4 +17,4 @@ __pycache__/
 # *.parquet
 
 # Model files - Usually ignored as they can be large
-*.pkl
+*.pklmodels/xgboost_model.pkl
