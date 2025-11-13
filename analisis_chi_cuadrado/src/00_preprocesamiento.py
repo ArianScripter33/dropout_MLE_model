@@ -1,9 +1,20 @@
 import pandas as pd
 import os
+import json
+from pathlib import Path
 
 # Definir las rutas de los archivos de entrada y salida
-raw_data_path = os.path.join('..', 'data', 'raw', '_Pulso de la Trayectoria Estudiantil UNRC_ (Respuestas) - Respuestas de formulario 1.csv')
-processed_data_path = os.path.join('..', 'data', 'processed', 'datos_limpios.csv')
+# Determinar si estamos ejecutando desde el directorio raíz o desde analisis_chi_cuadrado/src
+if os.path.basename(os.getcwd()) == 'src':
+    # Estamos en analisis_chi_cuadrado/src
+    raw_data_path = os.path.join('..', 'data', 'raw', '_Pulso de la Trayectoria Estudiantil UNRC_ (Respuestas) - Respuestas de formulario 1.csv')
+    processed_data_path = os.path.join('..', 'data', 'processed', 'datos_limpios.csv')
+    metrics_path = os.path.join('..', 'metrics', 'preprocess.json')
+else:
+    # Estamos en el directorio raíz
+    raw_data_path = os.path.join('data', 'raw', '_Pulso de la Trayectoria Estudiantil UNRC_ (Respuestas) - Respuestas de formulario 1.csv')
+    processed_data_path = os.path.join('data', 'processed', 'datos_limpios.csv')
+    metrics_path = os.path.join('metrics', 'preprocess.json')
 
 # Cargar los datos
 df = pd.read_csv(raw_data_path)
@@ -47,4 +58,22 @@ print(df['licenciatura'].unique())
 # Guardar el DataFrame limpio en un nuevo archivo CSV
 df.to_csv(processed_data_path, index=False)
 
-print(f"\nLos datos limpios se han guardado en: {processed_data_path}")
+# Generar métricas para DVC
+metrics = {
+    "input_rows": len(pd.read_csv(raw_data_path)),
+    "output_rows": len(df),
+    "initial_columns": len(pd.read_csv(raw_data_path).columns),
+    "final_columns": len(df.columns),
+    "removed_rows": len(pd.read_csv(raw_data_path)) - len(df),
+    "unique_licenciaturas": len(df['licenciatura'].unique()),
+    "licenciaturas": list(df['licenciatura'].unique())
+}
+
+# Guardar las métricas en formato JSON
+Path(os.path.dirname(metrics_path)).mkdir(parents=True, exist_ok=True)
+with open(metrics_path, 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print(f"\nDatos procesados: {len(df)} filas")
+print(f"Métricas guardadas en: {metrics_path}")
+print(f"Los datos limpios se han guardado en: {processed_data_path}")

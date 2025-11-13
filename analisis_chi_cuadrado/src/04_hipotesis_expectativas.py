@@ -3,10 +3,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import chi2_contingency
 import os
+import json
+from pathlib import Path
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
-RESULTS_PATH = os.path.join("..", "results")
+# Determinar si estamos ejecutando desde el directorio raíz o desde analisis_chi_cuadrado/src
+if os.path.basename(os.getcwd()) == 'src':
+    # Estamos en analisis_chi_cuadrado/src
+    PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("..", "results")
+    METRICS_PATH = os.path.join("..", "metrics", "hipotesis3.json")
+else:
+    # Estamos en el directorio raíz
+    PROCESSED_DATA_PATH = os.path.join("data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("results")
+    METRICS_PATH = os.path.join("metrics", "hipotesis3.json")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -73,4 +84,27 @@ plt.tight_layout()
 output_path = os.path.join(RESULTS_PATH, "hipotesis_3_expectativas_vs_abandono.png")
 plt.savefig(output_path)
 
-print(f"\nGráfico guardado en: {output_path}")
+# --- Generar Métricas para DVC ---
+metrics = {
+    "chi2_statistic": float(chi2),
+    "p_value": float(p),
+    "degrees_freedom": int(dof),
+    "significance": bool(p < alpha),
+    "alpha_level": float(alpha),
+    "sample_size": int(len(df)),
+    "contingency_table_shape": list(contingency_table.shape),
+    "table_total": int(contingency_table.sum().sum()),
+    "max_abandono_rate": float(ct_percent['Sí'].max()),
+    "min_abandono_rate": float(ct_percent['Sí'].min()),
+    "expectativas_categories": list(contingency_table.index),
+    "output_graph_path": str(output_path)
+}
+
+# Guardar las métricas en formato JSON
+metrics_path = METRICS_PATH
+Path(os.path.dirname(metrics_path)).mkdir(parents=True, exist_ok=True)
+with open(metrics_path, 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print(f"\nMétricas guardadas en: {metrics_path}")
+print(f"Gráfico guardado en: {output_path}")

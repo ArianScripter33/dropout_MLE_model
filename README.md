@@ -45,14 +45,46 @@ El proyecto adopta un enfoque híbrido y fásico:
 *   **/app:** Código para el dashboard interactivo.
 *   **/models:** Almacena los artefactos del modelo entrenado.
 
-## 5. Cómo Ejecutar el Proyecto
+## 5. Ejecución y Despliegue
+
+### 5.1. Ejecución Local (Prototipo Actual)
+
+Para ejecutar los dashboards interactivos en tu máquina local, sigue estos pasos.
+
+1.  **Instalar Dependencias:**
+    Asegúrate de tener Python 3.8+ y luego instala las librerías necesarias. Se recomienda usar un entorno virtual.
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2.  **Ejecutar el Dashboard Interactivo:**
+
+    Este proyecto incluye dos dashboards:
+
+    *   **Dashboard Contextualizado (UNRC):** La versión más reciente y recomendada, adaptada con la lógica de negocio de la UNRC.
+        ```bash
+        streamlit run app/dashboard_unrc.py
+        ```
+
+    *   **Dashboard Original:** La primera versión del simulador.
+        ```bash
+        streamlit run app/dashboard.py
+        ```
+        o puedes usar el script auxiliar que verifica dependencias:
+        ```bash
+        bash run_dashboard.sh
+        ```
+
+### 5.2. Despliegue en GCP (Visión a Futuro)
+
+La siguiente es una guía de alto nivel para una futura implementación en producción.
 
 1.  **Configuración de GCP:**
     *   Crea un proyecto en Google Cloud.
     *   Habilita las APIs de BigQuery, Vertex AI y Cloud Run.
     *   Crea un bucket en Google Cloud Storage.
 2.  **Pipeline de Datos:**
-    *   Carga `data/raw/student-dropout-dataset.csv` a una tabla en BigQuery.
+    *   Carga `data/raw/data.csv` a una tabla en BigQuery.
     *   Ejecuta las consultas SQL de transformación para crear la tabla procesada.
 3.  **Pipeline de Entrenamiento:**
     *   Empaqueta el código de `src/` en un contenedor y súbelo a Google Container Registry.

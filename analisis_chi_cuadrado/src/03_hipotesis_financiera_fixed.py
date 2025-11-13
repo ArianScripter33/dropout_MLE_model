@@ -7,17 +7,8 @@ import json
 from pathlib import Path
 
 # --- Configuración de Rutas ---
-# Determinar si estamos ejecutando desde el directorio raíz o desde analisis_chi_cuadrado/src
-if os.path.basename(os.getcwd()) == 'src':
-    # Estamos en analisis_chi_cuadrado/src
-    PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
-    RESULTS_PATH = os.path.join("..", "results")
-    METRICS_PATH = os.path.join("..", "metrics", "hipotesis2.json")
-else:
-    # Estamos en el directorio raíz
-    PROCESSED_DATA_PATH = os.path.join("data", "processed", "datos_limpios.csv")
-    RESULTS_PATH = os.path.join("results")
-    METRICS_PATH = os.path.join("metrics", "hipotesis2.json")
+PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+RESULTS_PATH = os.path.join("..", "results")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -116,7 +107,7 @@ metrics = {
 }
 
 # Guardar las métricas en formato JSON
-metrics_path = METRICS_PATH
+metrics_path = os.path.join("..", "metrics", "hipotesis2.json")
 Path(os.path.dirname(metrics_path)).mkdir(parents=True, exist_ok=True)
 with open(metrics_path, 'w') as f:
     json.dump(metrics, f, indent=2)

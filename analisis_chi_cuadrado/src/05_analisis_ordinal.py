@@ -3,10 +3,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import kruskal, mannwhitneyu
 import os
+import json
+from pathlib import Path
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
-RESULTS_PATH = os.path.join("..", "results")
+# Determinar si estamos ejecutando desde el directorio raíz o desde analisis_chi_cuadrado/src
+if os.path.basename(os.getcwd()) == 'src':
+    # Estamos en analisis_chi_cuadrado/src
+    PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("..", "results")
+    METRICS_PATH = os.path.join("..", "metrics", "ordinal.json")
+else:
+    # Estamos en el directorio raíz
+    PROCESSED_DATA_PATH = os.path.join("data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("results")
+    METRICS_PATH = os.path.join("metrics", "ordinal.json")
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # --- Cargar Datos ---
@@ -41,6 +52,7 @@ print("--- Análisis de Frecuencia de Pensamientos (Ordinal) ---")
 # --- Función para Análisis y Visualización (Boxplots) ---
 def analizar_y_visualizar_ordinal(dataframe, variable_independiente, grupos_a_comparar, prueba_func, titulo, nombre_archivo):
     print(f"\n--- Análisis: {titulo} ---")
+    resultados = {}
     
     # Filtrar para asegurar que solo tenemos las categorías relevantes
     df_filtrado = dataframe.dropna(subset=[variable_independiente, grupos_a_comparar])
@@ -71,10 +83,22 @@ def analizar_y_visualizar_ordinal(dataframe, variable_independiente, grupos_a_co
 
         # Interpretación
         alpha = 0.05
+        significance = p < alpha
         if p < alpha:
             print("Resultado: La diferencia en la frecuencia de pensamientos es estadísticamente significativa.")
         else:
             print("Resultado: No hay diferencia significativa en la frecuencia de pensamientos.")
+        
+        # Almacenar resultados
+        resultados = {
+            "prueba_nombre": prueba_nombre,
+            "estadistico": float(stat),
+            "p_value": float(p),
+            "significance": bool(significance),
+            "alpha_level": float(alpha),
+            "grupo_etiquetas": list(set(df_filtrado[grupos_a_comparar])),
+            "output_graph_path": str(os.path.join(RESULTS_PATH, nombre_archivo))
+        }
 
         # Visualización (Boxplots)
         plt.style.use('seaborn-v0_8-whitegrid')
@@ -91,19 +115,41 @@ def analizar_y_visualizar_ordinal(dataframe, variable_independiente, grupos_a_co
         print(f"Gráfico guardado en: {output_path}")
     else:
         print("No hay suficientes grupos para comparar.")
+        resultados = {"error": "No hay suficientes grupos para comparar"}
+    
+    return resultados
 
 
 # 5a. Frecuencia vs. Rendimiento (Ordinal) -> Kruskal-Wallis
-analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'rendimiento_ordinal', kruskal, 
+resultados_rendimiento = analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'rendimiento_ordinal', kruskal, 
                               "Frecuencia de Pensamientos vs. Rendimiento Académico", 
                               "ordinal_rendimiento_vs_frecuencia.png")
 
 # 5b. Frecuencia vs. Beca (Binario) -> Mann-Whitney U
-analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'beca_actual', mannwhitneyu, 
+resultados_beca = analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'beca_actual', mannwhitneyu, 
                               "Frecuencia de Pensamientos vs. Tenencia de Beca", 
                               "ordinal_beca_vs_frecuencia.png")
 
 # 5c. Frecuencia vs. Expectativas (Ordinal) -> Kruskal-Wallis
-analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'expectativas_ordinal', kruskal, 
+resultados_expectativas = analizar_y_visualizar_ordinal(df, 'frecuencia_abandono', 'expectativas_ordinal', kruskal, 
                               "Frecuencia de Pensamientos vs. Expectativas de Carrera", 
                               "ordinal_expectativas_vs_frecuencia.png")
+
+# --- Generar Métricas para DVC ---
+metrics = {
+    "sample_size": int(len(df)),
+    "rendimiento": resultados_rendimiento,
+    "beca": resultados_beca,
+    "expectativas": resultados_expectativas,
+    "pruebas_realizadas": 3,
+    "frecuencia_promedio": float(df['frecuencia_abandono'].mean()),
+    "frecuencia_mediana": float(df['frecuencia_abandono'].median())
+}
+
+# Guardar las métricas en formato JSON
+metrics_path = METRICS_PATH
+Path(os.path.dirname(metrics_path)).mkdir(parents=True, exist_ok=True)
+with open(metrics_path, 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print(f"\nMétricas guardadas en: {metrics_path}")

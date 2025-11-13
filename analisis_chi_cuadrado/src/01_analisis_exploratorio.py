@@ -1,9 +1,20 @@
 import pandas as pd
 import os
+import json
+from pathlib import Path
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
-RESULTS_PATH = os.path.join("..", "results")
+# Determinar si estamos ejecutando desde el directorio raíz o desde analisis_chi_cuadrado/src
+if os.path.basename(os.getcwd()) == 'src':
+    # Estamos en analisis_chi_cuadrado/src
+    PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("..", "results")
+    METRICS_PATH = os.path.join("..", "metrics", "exploratory.json")
+else:
+    # Estamos en el directorio raíz
+    PROCESSED_DATA_PATH = os.path.join("data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("results")
+    METRICS_PATH = os.path.join("metrics", "exploratory.json")
 
 # Crear directorios si no existen
 os.makedirs(RESULTS_PATH, exist_ok=True)
@@ -45,4 +56,25 @@ desafios_counts = desafios.value_counts()
 desafios_perc = desafios.value_counts(normalize=True) * 100
 print(pd.concat([desafios_counts, desafios_perc], axis=1, keys=['Frecuencia', 'Porcentaje (%)']).head())
 
-print(f"\nAnálisis completado.")
+# --- Generar Métricas para DVC ---
+metrics = {
+    "total_estudiantes": len(df),
+    "consideraron_abandonar": int(df['abandono_considerado'].value_counts().get('Sí', 0)),
+    "porcentaje_abandono": float(considero_perc.get('Sí', 0)),
+    "count_licenciaturas": int(len(df['licenciatura'].unique())),
+    "licenciatura_mayoritaria": str(df['licenciatura'].value_counts().index[0]),
+    "frecuencia_abandono_promedio": float(df['frecuencia_abandono'].mean()),
+    "frecuencia_abandono_mediana": float(df['frecuencia_abandono'].median()),
+    "total_respustas_desafios": int(len(desafios)),
+    "desafio_mas_comun": str(desafios_counts.index[0]),
+    "desafios_unicos": int(desafios_counts.nunique())
+}
+
+# Guardar las métricas en formato JSON
+metrics_path = METRICS_PATH
+Path(os.path.dirname(metrics_path)).mkdir(parents=True, exist_ok=True)
+with open(metrics_path, 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print(f"\nMétricas guardadas en: {metrics_path}")
+print(f"Análisis completado con {len(df)} estudiantes.")

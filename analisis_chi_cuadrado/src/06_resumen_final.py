@@ -2,10 +2,21 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 from scipy.stats import chi2_contingency, kruskal, mannwhitneyu
+import json
+from pathlib import Path
 
 # --- Configuración de Rutas ---
-PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
-RESULTS_PATH = os.path.join("..", "results")
+# Determinar si estamos ejecutando desde el directorio raíz o desde analisis_chi_cuadrado/src
+if os.path.basename(os.getcwd()) == 'src':
+    # Estamos en analisis_chi_cuadrado/src
+    PROCESSED_DATA_PATH = os.path.join("..", "data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("..", "results")
+    METRICS_PATH = os.path.join("..", "metrics", "resumen.json")
+else:
+    # Estamos en el directorio raíz
+    PROCESSED_DATA_PATH = os.path.join("data", "processed", "datos_limpios.csv")
+    RESULTS_PATH = os.path.join("results")
+    METRICS_PATH = os.path.join("metrics", "resumen.json")
 
 # --- Cargar Datos ---
 try:
@@ -121,7 +132,40 @@ print("\n[Insight 4: Intensidad del Pensamiento (Ordinal)]")
 print(f"La intensidad de los pensamientos de abandono (1-5) se correlaciona significativamente con el Rendimiento (Kruskal p={p_ord_rendimiento:.3f}) y las Expectativas (Kruskal p={p_ord_expectativas:.3f}), pero no con la Beca (Mann-Whitney p={p_ord_beca:.3f}).")
 print("Esto sugiere que el rendimiento y la satisfacción afectan la *frecuencia* del pensamiento, no solo la decisión binaria.")
 
-# Nota: Los gráficos de barras agrupadas y boxplots ya fueron generados en scripts anteriores.
+# --- Generar Métricas para DVC ---
+metrics = {
+    "summary": {
+        "total_estudiantes": int(len(df)),
+        "hipotesis_rendimiento_sig": bool(p_h1 < 0.05),
+        "hipotesis_beca_sig": bool(p_h2a < 0.05),
+        "hipotesis_economia_sig": bool(p_h2b < 0.05),
+        "hipotesis_expectativas_sig": bool(p_h3 < 0.05),
+        "ordinal_rendimiento_sig": bool(p_ord_rendimiento < 0.05),
+        "ordinal_expectativas_sig": bool(p_ord_expectativas < 0.05),
+        "ordinal_beca_sig": bool(p_ord_beca < 0.05)
+    },
+    "tablas_resumen": {
+        "h1_tabla": ct_h1.round(1).to_dict(),
+        "h1_pvalor": float(p_h1),
+        "h2a_tabla": ct_h2a.round(1).to_dict(),
+        "h2a_pvalor": float(p_h2a),
+        "h2b_tabla": ct_h2b.round(1).to_dict(),
+        "h2b_pvalor": float(p_h2b),
+        "h3_tabla": ct_h3.round(1).to_dict(),
+        "h3_pvalor": float(p_h3)
+    },
+    "insights_generados": 4
+}
+
+# Guardar las métricas en formato JSON
+metrics_path = METRICS_PATH
+Path(os.path.dirname(metrics_path)).mkdir(parents=True, exist_ok=True)
+with open(metrics_path, 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print(f"\nMétricas guardadas en: {metrics_path}")
+
+# --- Referencias a gráficos generados en scripts anteriores ---
 # Para el informe, se recomienda usar los gráficos generados en:
 # - H1: hipotesis_1_rendimiento_vs_abandono.png
 # - H2: hipotesis_2a_beca_vs_abandono.png y hipotesis_2b_economia_vs_abandono.png
