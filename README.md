@@ -1,97 +1,40 @@
-# SAREP: Modelo Predictivo de Deserción Estudiantil
+# SAREP: Sistema de Acompañamiento y Retención Estudiantil Proactivo (UNRC)
 
-## 1. Visión General del Proyecto
+![Python 3.11](https://img.shields.io/badge/Python-3.11-blue) ![XGBoost](https://img.shields.io/badge/XGBoost-Model-orange) ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
 
-Este repositorio contiene el código y la documentación para el desarrollo del "Cerebro Analítico" del Sistema de Acompañamiento y Retención Estudiantil Proactivo (SAREP). El objetivo es construir un modelo de Machine Learning capaz de predecir la probabilidad de que un estudiante universitario abandone sus estudios, permitiendo intervenciones tempranas y proactivas.
+## Resumen Ejecutivo
 
-Este proyecto sirve como una prueba de concepto técnica para el caso de negocio presentado en el informe "De la Puerta Giratoria a la Vía de Graduación".
+Este repositorio contiene la evidencia metodológica, el código fuente y los resultados del estudio **"De la Puerta Giratoria a la Vía de Graduación"**. El proyecto implementa un sistema predictivo y de intervención temprana para reducir la deserción estudiantil en la Universidad Nacional Rosario Castellanos (UNRC), utilizando técnicas de Machine Learning (XGBoost) y análisis estadístico riguroso.
 
-## 2. Dataset Utilizado
+## Mapa del Repositorio
 
-Ante la ausencia de datos públicos granulares de la UNRC, este prototipo se ha desarrollado utilizando un dataset proxy de alta calidad:
+Este compendio digital está estructurado para facilitar la auditoría de los resultados presentados en el informe técnico:
 
-*   **Nombre:** Predict Students' Dropout and Academic Success
-*   **Fuente:** UCI Machine Learning Repository
-*   **Origen:** Datos empíricos de una institución de educación superior en Portugal.
-*   **Características:** 4,424 registros, 37 variables (36 predictoras, 1 objetivo).
+| Directorio | Descripción |
+| :--- | :--- |
+| **`📂 notebooks/`** | **Narrativa secuencial del descubrimiento.** Contiene los notebooks desde la limpieza de datos hasta el modelado. <br> • **`04_Modelo_Binario_Final.ipynb`**: **Notebook principal** con el entrenamiento del modelo final y evaluación de métricas. <br> • `anexos_conceptuales/`: Explicaciones detalladas de métricas (F1-Score, AUC-ROC) y validaciones. |
+| **`📂 src/analysis/`** | **Scripts de validación estadística.** Código fuente para las pruebas de hipótesis citadas en el Anexo (Chi-Cuadrado, Kruskal-Wallis). |
+| **`📂 app/`** | **Prototipo funcional del Dashboard.** Código de la aplicación Streamlit diseñada para que los tutores visualicen el riesgo de deserción y gestionen intervenciones. |
+| **`📂 reports/`** | **Evidencia y Resultados.** <br> • `figures/`: Gráficos generados (distribuciones, importancia de características, matrices de confusión). <br> • `metrics/`: Archivos JSON con las métricas de desempeño de los modelos. <br> • `annex.md`: Anexo técnico detallado. |
+| **`📂 docs/`** | **Documentación Técnica.** Detalles sobre la arquitectura del sistema e interpretabilidad de características. |
 
-El dataset original se encuentra en la carpeta `/data/raw/`.
+## Guía de Reproducibilidad
 
-## 3. Metodología y Arquitectura Tecnológica
+Para replicar el entorno de análisis y ejecutar el dashboard:
 
-El proyecto adopta un enfoque híbrido y fásico:
+1. **Instalar dependencias:**
 
-1.  **Fase 1: Prototipado Local (Implementación Actual):**
-    *   El trabajo se centra en un entorno de desarrollo local (Jupyter Notebooks, Google Colab) para una rápida iteración.
-    *   **Procesamiento de Datos:** Se utiliza la librería **Pandas** para la manipulación y preprocesamiento de los datos.
-    *   **Modelo Principal:** `XGBoost Classifier`.
-    *   **Optimización de Hiperparámetros:** Se emplea **Optuna** para una búsqueda eficiente de los mejores hiperparámetros.
-    *   **Resultado:** Un modelo validado y un pipeline de ciencia de datos completo que funciona de manera local.
-
-2.  **Fase 2: Arquitectura de Producción (Visión a Futuro):**
-    *   Para escalar el prototipo a un sistema de producción, se describe una arquitectura nativa de la nube en **Google Cloud Platform (GCP)**.
-    *   **Procesamiento de Datos:** **Google BigQuery** para un procesamiento ELT escalable basado en SQL.
-    *   **Entrenamiento y Optimización:** **Vertex AI Training** con **Vertex AI Vizier** para la gestión de trabajos de entrenamiento y optimización de hiperparámetros a gran escala.
-    *   **Despliegue:** El artefacto del modelo se almacena en **Google Cloud Storage** y el dashboard de Streamlit se despliega como un servicio autoescalable en **Cloud Run**.
-
-*La visión a largo plazo de la arquitectura está inspirada en los principios de los agentes de ingeniería de ML de vanguardia como **MLE-Star de Google**, apuntando a un sistema que no solo predice, sino que se auto-optimiza y se mantiene en el tiempo.*
-
-
-## 4. Estructura del Repositorio
-
-*   **/data:** Contiene los datasets raw y procesados.
-*   **/notebooks:** Jupyter Notebooks para EDA, preprocesamiento y modelado.
-*   **/src:** Scripts de Python con el código modularizado.
-*   **/app:** Código para el dashboard interactivo.
-*   **/models:** Almacena los artefactos del modelo entrenado.
-
-## 5. Ejecución y Despliegue
-
-### 5.1. Ejecución Local (Prototipo Actual)
-
-Para ejecutar los dashboards interactivos en tu máquina local, sigue estos pasos.
-
-1.  **Instalar Dependencias:**
-    Asegúrate de tener Python 3.8+ y luego instala las librerías necesarias. Se recomienda usar un entorno virtual.
     ```bash
     pip install -r requirements.txt
     ```
 
-2.  **Ejecutar el Dashboard Interactivo:**
+2. **Ejecutar el Dashboard (Prototipo):**
 
-    Este proyecto incluye dos dashboards:
+    ```bash
+    streamlit run app/dashboard_unrc.py
+    ```
 
-    *   **Dashboard Contextualizado (UNRC):** La versión más reciente y recomendada, adaptada con la lógica de negocio de la UNRC.
-        ```bash
-        streamlit run app/dashboard_unrc.py
-        ```
+    *(Nota: Asegúrese de estar en el directorio raíz del proyecto)*
 
-    *   **Dashboard Original:** La primera versión del simulador.
-        ```bash
-        streamlit run app/dashboard.py
-        ```
-        o puedes usar el script auxiliar que verifica dependencias:
-        ```bash
-        bash run_dashboard.sh
-        ```
-
-### 5.2. Despliegue en GCP (Visión a Futuro)
-
-La siguiente es una guía de alto nivel para una futura implementación en producción.
-
-1.  **Configuración de GCP:**
-    *   Crea un proyecto en Google Cloud.
-    *   Habilita las APIs de BigQuery, Vertex AI y Cloud Run.
-    *   Crea un bucket en Google Cloud Storage.
-2.  **Pipeline de Datos:**
-    *   Carga `data/raw/data.csv` a una tabla en BigQuery.
-    *   Ejecuta las consultas SQL de transformación para crear la tabla procesada.
-3.  **Pipeline de Entrenamiento:**
-    *   Empaqueta el código de `src/` en un contenedor y súbelo a Google Container Registry.
-    *   Lanza el trabajo de entrenamiento en Vertex AI, configurando el estudio de Vizier para la optimización.
-4.  **Despliegue del Dashboard:**
-    *   Empaqueta la app de `app/` en un contenedor y despliégala en Cloud Run.
-## 6. Resultados Clave
-
-*El modelo final alcanzó un rendimiento de [Placeholder para métrica clave, ej. AUC de 0.93], demostrando una alta capacidad para distinguir entre estudiantes en riesgo y aquellos que probablemente persistirán. El análisis de Feature Importance reveló que el rendimiento académico en el primer semestre es el predictor más potente.*
-
+---
+*Proyecto desarrollado para la Universidad Nacional de Rosario Castellanos (UNRC).*
