@@ -1,0 +1,21 @@
+{
+  "chi2_statistic": 6.759420606524097,
+  "p_value": 0.03405731960001218,
+  "degrees_freedom": 2,
+  "significance": true,
+  "alpha_level": 0.05,
+  "sample_size": 98,
+  "contingency_table_shape": [
+    3,
+    2
+  ],
+  "table_total": 98,
+  "max_abandono_rate": 100.0,
+  "min_abandono_rate": 30.0,
+  "expectativas_categories": [
+    "S\u00ed, totalmente",
+    "Parcialmente, tengo algunas dudas",
+    "No, o casi no"
+  ],
+  "output_graph_path": "results/hipotesis_3_expectativas_vs_abandono.png"
+}
