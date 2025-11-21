@@ -6,10 +6,58 @@ Este documento constituye el apéndice técnico del informe final. Detalla la ar
 
 Para abordar el problema de **"Arranque en Frío"** (*Cold Start*) derivado de la falta de históricos centralizados en la UNRC, se implementó una estrategia híbrida:
 
-1. **Análisis Descriptivo (Contexto):** Se procesaron los datos longitudinales de los informes de *Numeralia UNRC (2021-2025)* para diagnosticar la brecha de eficiencia terminal (Sección 2.2.1 del informe principal).
-2. **Modelado Predictivo (Solución):** Se aplicó una técnica de **Adaptación de Dominio** utilizando un *Dataset Proxy Estandarizado* (UCI Machine Learning Repository) para entrenar el motor de inferencia inicial.
+1. **Análisis Descriptivo (Contexto):** Se procesaron los datos longitudinales de los informes de *Numeralia UNRC (2021-2025)* para diagnosticar la brecha de eficiencia terminal.
+2. **Modelado Predictivo (Solución):** Se aplicó una técnica de **Adaptación de Dominio** utilizando un *Dataset Proxy Estandarizado* (UCI Machine Learning Repository).
 
-### Pipeline de Ingeniería de Características (`src/data/data_processing.py`)
+### A.1 Metodología del Análisis Longitudinal (Diagnóstico)
+
+Ante la ausencia de históricos centralizados, se realizó una **reconstrucción forense de datos** longitudinales de la pagina oficial de ([Numeralia,2021-2025](https://rcastellanos.cdmx.gob.mx/espacio-de-numeralia-del-irc)) para establecer una línea base de desempeño institucional.
+
+**1. Fuentes y Recuperación de Datos:**
+Se consolidaron registros dispersos en archivos estandarizados (`data/raw/longitudinal/`), recuperando series temporales críticas:
+
+* **Flujo Estudiantil:** Matrícula activa, Bajas definitivas y Egresos.
+* **Capacidad Instalada:** Plantilla docente por modalidad.
+* **Salida:** Titulación acumulada.
+
+**2. Definición de KPIs de Eficiencia:**
+Se diseñaron cuatro indicadores para evaluar la salud del ecosistema educativo:
+
+* **a) Tasa de Deserción (*Dropout Rate*):** Mide la pérdida inmediata de talento.
+    $$ \text{Tasa}_t = \left( \frac{\text{Bajas}_t}{\text{Matrícula}_t} \right) \times 100 $$
+
+* **b) Disparidad en Carga Docente:** Evalúa la equidad en la atención. Compara el ratio *Estudiantes por Docente* entre la modalidad Presencial y Distancia.
+  * *Hallazgo:* Se monitorea la brecha porcentual para detectar saturación en la modalidad online.
+
+* **c) Eficiencia Terminal (Conversión):** Mide la capacidad administrativa y académica de titular a los egresados.
+    $$ \text{Conversión} = \frac{\sum \text{Titulados}}{\sum \text{Egresados}} $$
+
+* **d) Eficiencia de Flujo (*Throughput*):**
+    Indicador proxy de la velocidad de tránsito estudiantil. Compara el flujo de salida (egresos) con el stock total (matrícula).
+    $$ \text{Throughput} = \left( \frac{\text{Egresados}_t}{\text{Matrícula}_t} \right) \times 100 $$
+  * *Interpretación:* En un programa de 5 años, una tasa trimestral inferior al 5% sugiere "embalsamiento" (retención excesiva sin egreso).
+
+### A.2 Diagnóstico de Eficiencia: El Cuello de Botella
+
+El análisis longitudinal revela una desconexión crítica entre el volumen de egreso y la titulación efectiva, identificada como el principal "Cuello de Botella" institucional.
+
+![Embudo de Eficiencia Terminal](figures/longitudinal_funnel_gap.png)
+*Fig A.1. Embudo de Eficiencia Terminal. El área roja representa la acumulación de egresados que no completan el proceso de titulación (La "Última Milla").*
+
+**Interpretación del Gráfico:**
+
+* **Crecimiento Desacoplado:** Mientras la base de egresados (línea superior del área) crece de manera constante, la tasa de titulación (área violeta) no mantiene el mismo ritmo, ensanchando la brecha (área roja) año tras año.
+* **La "Última Milla":** El área roja visualiza el *stock* de talento retenido administrativamente. No es un problema de capacidad académica (ya egresaron), sino de eficiencia en los trámites o incentivos finales.
+* **Impacto:** Esta brecha representa recursos invertidos que no se traducen en indicadores de éxito oficial para la institución ni en movilidad social para el egresado.
+
+> **Conclusión de Negocio: El Dilema de la "Puerta Cerrada"**
+>
+> La evidencia sugiere que la "puerta giratoria" no solo está en la entrada (deserción temprana), sino que la puerta de salida está cerrada con llave. Resolver este cuello de botella es la **victoria rápida más valiosa** para mejorar los indicadores institucionales sin necesidad de captar ni un solo alumno nuevo.
+>
+> *Nota de Validez (Hipótesis Alternativa):*
+> Es importante considerar que, dada la naturaleza de reconstrucción de datos de este estudio, parte de la brecha podría no ser una ineficiencia administrativa real, sino un reflejo de la **falta de consolidación de sistemas (Sub-registro)**. Sin embargo, la implicación es igualmente grave: la institución enfrenta una **ceguera operativa** que le impide acreditar su verdadera eficiencia terminal ante organismos evaluadores.
+
+### A.3 Pipeline de Ingeniería de Características (Modelado)
 
 El pipeline de transformación garantiza la calidad de los datos para el algoritmo XGBoost:
 
@@ -127,6 +175,7 @@ El **Área Bajo la Curva ROC** mide la capacidad del modelo para distinguir entr
 * **Sensibilidad (Recall):** 221/(221+63) = **77.8%** → El sistema detecta a casi 8 de cada 10 estudiantes en riesgo.
 * **Precisión (Precision):** 221/(221+37) = **85.6%** → Cuando el sistema emite una alerta, tiene alta probabilidad de ser correcta.
 * **Especificidad:** 564/(564+37) = **93.8%** → El modelo evita falsas alarmas en la mayoría de los casos.
+(Obtenido de /notebooks/anexos_conceptuales/)
 
 **Análisis de Errores:**
 
