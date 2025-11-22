@@ -1,5 +1,7 @@
 # SAREP: Sistema de Acompañamiento y Retención Estudiantil Proactivo (UNRC)
 
+![SAREP Project Header](reports/figures/project_header.png)
+
 ![Python 3.11](https://img.shields.io/badge/Python-3.11-blue) ![XGBoost](https://img.shields.io/badge/XGBoost-Model-orange) ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
 
 ## Resumen Ejecutivo
