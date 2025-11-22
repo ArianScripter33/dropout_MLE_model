@@ -241,12 +241,15 @@ El **Área Bajo la Curva ROC** mide la capacidad del modelo para distinguir entr
 ![Matriz de Confusión](figures/binary_confusion_matrix.png)
 *Fig B.2. Visualización de la matriz de confusión con codificación de color.*
 
-**Métricas Derivadas:**
+#### Reporte de Clasificación (Detallado)
 
-* **Sensibilidad (Recall):** 221/(221+63) = **77.8%** → El sistema detecta a casi 8 de cada 10 estudiantes en riesgo.
-* **Precisión (Precision):** 221/(221+37) = **85.6%** → Cuando el sistema emite una alerta, tiene alta probabilidad de ser correcta.
-* **Especificidad:** 564/(564+37) = **93.8%** → El modelo evita falsas alarmas en la mayoría de los casos.
-(Obtenido de /notebooks/anexos_conceptuales/)
+| Clase | Precision | Recall | F1-Score | Support (Casos Reales) |
+| :--- | :---: | :---: | :---: | :---: |
+| **No Dropout (Clase 0)** | 0.90 | 0.94 | 0.92 | 601 |
+| **Dropout (Clase 1)** | 0.86 | 0.78 | 0.82 | 284 |
+| **Accuracy Global** | | | **0.89** | **885** |
+| **Macro Avg** | 0.88 | 0.86 | 0.87 | 885 |
+| **Weighted Avg** | 0.89 | 0.89 | 0.89 | 885 |
 
 **Análisis de Errores:**
 
