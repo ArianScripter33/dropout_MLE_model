@@ -121,7 +121,6 @@ Las variables económicas (`GDP`, `Inflation`, `Unemployment`) no son constantes
   * *One-Hot Encoding:* Para variables nominales sin orden (ej. `Intención de abandono (binarias)`, `Carrera`).
   * *Label Encoding:* Para variables ordinales (ej. `Nivel de satisfacción vocacional`).
 * **Escalado:** *Min-Max Scaling* para normalizar rangos y mejorar la convergencia del modelo.
-* **Manejo de Desbalance:** Se aplicó **SMOTE** (Synthetic Minority Over-sampling Technique) en el conjunto de entrenamiento para compensar el sesgo hacia la clase mayoritaria.
 
 ---
 
