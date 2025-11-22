@@ -94,7 +94,7 @@ El análisis de distribución de variables confirmó que los datos no presentan 
 
 ### A.2.1 Evidencia de Realismo Estocástico (EDA)
 
-El análisis exploratorio de datos (`notebooks/01-EDA.ipynb`) confirma la naturaleza orgánica del dataset, refutando la hipótesis de datos sintéticos "perfectos":
+El análisis exploratorio de datos (`notebooks/01-EDA.ipynb`) refuta la utilidad de datos sintéticos para este caso. A diferencia de simulaciones con "curvas perfectas", los datos reales mostraron distribuciones sesgadas (ej. Edad con *Right Skew* y outliers de adultos mayores) y ruido macroeconómico (PIB negativo). Esta complejidad estocástica es vital para entrenar un modelo robusto que soporte la realidad caótica de la deserción, algo que reglas sintéticas predefinidas no pueden replicar.
 
 **1. Distribuciones Sesgadas (No Gaussianas):**
 A diferencia de una simulación que suele asumir normalidad, la variable `Age at enrollment` muestra una fuerte asimetría positiva (Right Skew).
@@ -125,84 +125,13 @@ Las variables económicas (`GDP`, `Inflation`, `Unemployment`) no son constantes
 
 ---
 
-## B. Metodología de Validación Empírica (Diseño Experimental)
+## B. Modelado Predictivo (XGBoost)
 
-Para corroborar la transferibilidad de los hallazgos del Modelo Proxy al contexto local de la UNRC, se diseñó un instrumento de validación *ad hoc*. Esta sección detalla la operacionalización de variables y el rigor del muestreo.
-
-### B.1 Diseño del Instrumento: De la Feature a la Pregunta
-
-El cuestionario no se construyó arbitrariamente; se utilizó un proceso de **Operacionalización Inversa**. Se seleccionaron las variables con mayor *Information Gain* del modelo XGBoost y se tradujeron en reactivos de encuesta medibles.
-
-**Tabla B.1. Matriz de Operacionalización de Variables**
-
-| Variable Crítica (XGBoost Proxy) | Importancia (Gain) | Dimensión Teórica | Reactivo en Encuesta Local (Ítem) | Tipo de Dato |
-| :--- | :--- | :--- | :--- | :--- |
-| `Ratio_Aprobacion_S2` | 0.29 (Alta) | **Integración Académica** | *"¿Cómo calificarías tu rendimiento en el último semestre?"* | Ordinal (1-5) |
-| `Course` / `Application_mode` | 0.08 (Media) | **Alineación Vocacional** | *"¿Qué tan satisfecho te sientes con la carrera elegida?"* | Ordinal (1-5) |
-| `Tuition_fees_up_to_date` | 0.10 (Alta) | **Estabilidad Financiera** | *"¿Cuentas con beca o apoyo económico?"* | Binario (Sí/No) |
-| `Target` (Variable Dependiente) | N/A | **Riesgo de Deserción** | *"¿Has considerado abandonar tus estudios?"* | Binario / Ordinal |
-
-> **Justificación del Diseño:** Este mapeo garantiza la **Validez de Constructo**. No estamos midiendo opiniones al azar; estamos midiendo la *percepción local* de las variables matemáticas que el algoritmo identificó como predictivas.
-
-### B.2 Diseño Muestral y Rigor Estadístico
-
-Se ejecutó un muestreo aleatorio simple en la Unidad Académica Casco Santo Tomás.
-
-#### Determinación del Tamaño de Muestra
-
-Se calculó el tamaño muestral necesario para validar hipótesis de asociación (no para inferencia poblacional censal), utilizando la fórmula para poblaciones finitas:
-
-$$ n = \frac{N \cdot Z^2 \cdot p \cdot (1-p)}{(N-1) \cdot E^2 + Z^2 \cdot p \cdot (1-p)} $$
-
-**Parámetros:**
-
-* **Población ($N$):** 1,890 estudiantes (Capacidad instalada operativa en turno activo).
-* **Nivel de Confianza ($Z$):** 90% ($Z=1.645$).
-* **Heterogeneidad ($p$):** 0.5 (Máxima incertidumbre conservadora).
-* **Muestra Efectiva ($n$):** 100 encuestas válidas.
-
-> **Cálculo del Margen de Error *A Posteriori*:**
-> Con $n=100$ y $N=1890$, el margen de error recalculado es de **$\pm 8.0\%$**.
-> *Validación:* Este margen es metodológicamente aceptable para la fase de **"Feature Validation Probe"** (Sondeo de Validación de Características), cuyo objetivo es evaluar la *existencia* de correlaciones (Rendimiento-Abandono, alienación vocacional, o estabilidad financiera), no estimar la *tasa exacta* de deserción con precisión decimal.
-
-### B.3 Resultados de las Pruebas de Hipótesis
-
-Una vez validada la muestra, se aplicaron pruebas no paramétricas.
-
-#### 1. Prueba de Independencia Chi-Cuadrado ($\chi^2$)
-
-**Objetivo:** Evaluar si la deserción es estadísticamente dependiente de factores académicos.
-
-$$ \chi^2 = \sum \frac{(O_i - E_i)^2}{E_i} $$
-
-| Hipótesis | Estadístico $\chi^2$ | P-valor | Interpretación Rigurosa |
-| :--- | :--- | :--- | :--- |
-| **H1: Rendimiento Académico** | 5.8101 | 0.0547 | **Asociación Marginal.** El p-valor supera ligeramente el $\alpha=0.05$. Esto se debe a la baja frecuencia esperada ($E_i < 5$) en la celda de "Reprobación Total", lo que resta potencia a la prueba, aunque la tendencia visual es clara. |
-| **H3: Alineación Vocacional** | **6.7594** | **0.0341** | **Significativa ($p<0.05$).** Se rechaza la hipótesis nula. Existe evidencia estadística suficiente para afirmar que el desajuste vocacional es un predictor activo. |
-
-![Distribución de Rendimiento vs Abandono](figures/hipotesis_1_rendimiento_vs_abandono.png)
-*Fig B.1. Distribución porcentual de deserción según nivel de rendimiento.*
-
-#### 2. Prueba H de Kruskal-Wallis (Análisis de Intensidad)
-
-Dado que el Chi-Cuadrado mostró marginalidad en H1, se aplicó una prueba de suma de rangos para evaluar la **intensidad** del fenómeno (variable ordinal), que es más robusta.
-
-$$ H = (N-1) \frac{\sum_{i=1}^{g} n_i (\bar{r}_{i\cdot} - \bar{r})^2}{\sum_{i=1}^{g} \sum_{j=1}^{n_i} (r_{ij} - \bar{r})^2} $$
-
-* **Estadístico H:** 8.3955
-* **P-valor:** **0.0150** (Altamente Significativo)
-* **Conclusión:** El análisis de varianza por rangos confirma lo que el Chi-Cuadrado sugirió: existe una diferencia estocástica significativa. Los estudiantes con bajo rendimiento experimentan una **intensidad de ideación de abandono** superior a la mediana poblacional.
-
-![Análisis Ordinal](figures/ordinal_rendimiento_vs_frecuencia.png)
-*Fig B.3. Frecuencia de pensamientos de abandono segmentada por rendimiento.*
-
----
-
-## C. Modelado Predictivo (XGBoost)
+Una vez diagnosticado el problema macro (Sección A), y ante la falta de datos históricos granulares (Cold Start), se procedió a entrenar el motor predictivo utilizando el Dataset Proxy caracterizado anteriormente. El objetivo de esta fase fue identificar las variables críticas (*Feature Importance*) que gobiernan el fenómeno de la deserción.
 
 Se implementó una estrategia evolutiva de modelado, pasando de un enfoque generalista (Multiclase) a uno especializado en detección de riesgos (Binario).
 
-### C.1 Evolución de la Estrategia
+### B.1 Evolución de la Estrategia
 
 #### Versión 1: Enfoque Multiclase (Línea Base)
 
@@ -230,7 +159,7 @@ Para operacionalizar el modelo en un sistema de alerta temprana, se redefinió e
 
 ---
 
-### C.2 Fundamentos Matemáticos: ¿Por qué XGBoost?
+### B.2 Fundamentos Matemáticos: ¿Por qué XGBoost?
 
 Más allá de ser una librería popular, XGBoost fue seleccionado por su capacidad teórica para manejar la complejidad específica de este problema.
 
@@ -257,7 +186,7 @@ El problema de la deserción presenta un **desbalance de clases** intrínseco (a
 
 ---
 
-### C.3 Configuración Técnica del Modelo Final
+### B.3 Configuración Técnica del Modelo Final
 
 Para garantizar la reproducibilidad, se detallan los parámetros exactos del modelo final (`notebooks/04_Modelo_Binario_Final.ipynb`) y la partición de datos:
 
@@ -284,7 +213,7 @@ model = XGBClassifier(
 
 ---
 
-### C.4 Evaluación de Desempeño: Métricas Clave
+### B.4 Evaluación de Desempeño: Métricas Clave
 
 En problemas de deserción, la métrica de **Exactitud** (Accuracy) puede ser engañosa debido al desbalance de clases.
 
@@ -297,7 +226,7 @@ Por ello, se utilizan métricas más robustas: **AUC-ROC** y **F1-Score**.
 El **Área Bajo la Curva ROC** mide la capacidad del modelo para distinguir entre clases. Un AUC de **0.9351** indica que, si se toma al azar un estudiante que desertó y otro que no desertó, el modelo asignará correctamente una probabilidad de riesgo más alta al desertor en el **93.5%** de los casos.
 
 ![Curva ROC](figures/roc_auc_curve.png)
-*Fig C.1. La curva ROC muestra excelente separación entre clases (muy superior a la línea diagonal del clasificador aleatorio).*
+*Fig B.1. La curva ROC muestra excelente separación entre clases (muy superior a la línea diagonal del clasificador aleatorio).*
 
 #### 2. Matriz de Confusión (Datos Crudos del Test Set)
 
@@ -310,7 +239,7 @@ El **Área Bajo la Curva ROC** mide la capacidad del modelo para distinguir entr
 | **Total Predicho** | 627 | 258 | 885 |
 
 ![Matriz de Confusión](figures/binary_confusion_matrix.png)
-*Fig C.2. Visualización de la matriz de confusión con codificación de color.*
+*Fig B.2. Visualización de la matriz de confusión con codificación de color.*
 
 **Métricas Derivadas:**
 
@@ -344,11 +273,11 @@ Imagine que el modelo es una **red de pesca** diseñada para capturar "casos de 
   * Es la media armónica de ambas métricas. Certifica que el modelo es **operativamente viable**: no tiene "agujeros grandes" (bajo Recall) ni "atrapa demasiada basura" (baja Precision).
 
 ![Análisis F1](figures/f1_score_analysis.png)
-*Fig C.3. Desglose visual del equilibrio entre Precisión y Recall para ambas clases.*
+*Fig B.3. Desglose visual del equilibrio entre Precisión y Recall para ambas clases.*
 
 ---
 
-### C.5 ¿Qué señales busca el modelo? (Feature Importance)
+### B.5 ¿Qué señales busca el modelo? (Feature Importance)
 
 Finalmente, le preguntamos al algoritmo: *¿En qué te fijas para decidir si alguien está en riesgo?*
 
@@ -359,7 +288,82 @@ El modelo no tiene prejuicios, solo mira datos. Su ranking de importancia valida
 3. **Factor Financiero (Pagos al día):** Estar al día con la matrícula es crucial; el estrés financiero detona la deserción.
 
 ![Feature Importance](figures/binary_feature_importance.png)
-*Fig C.4. Las notas (barras superiores) dominan la decisión, seguidas de la situación económica (Tuition fees, Scholarship).*
+*Fig B.4. Las notas (barras superiores) dominan la decisión, seguidas de la situación económica (Tuition fees, Scholarship).*
+
+---
+
+## C. Metodología de Validación Empírica (Diseño Experimental)
+
+Habiendo identificado mediante el modelo XGBoost (Sección B) que el 'Rendimiento Académico' y la 'Economía' son los predictores dominantes, se procedió a validar si estos hallazgos se sostienen en la realidad local de la UNRC mediante un instrumento de campo ($n=100$).
+
+Para corroborar la transferibilidad de los hallazgos del Modelo Proxy al contexto local de la UNRC, se diseñó un instrumento de validación *ad hoc*. Esta sección detalla la operacionalización de variables y el rigor del muestreo.
+
+### C.1 Diseño del Instrumento: De la Feature a la Pregunta
+
+El cuestionario no se construyó arbitrariamente; se utilizó un proceso de **Operacionalización Inversa**. Se seleccionaron las variables con mayor *Information Gain* del modelo XGBoost y se tradujeron en reactivos de encuesta medibles.
+
+#### Tabla C.1. Matriz de Operacionalización de Variables
+
+| Variable Crítica (XGBoost Proxy) | Importancia (Gain) | Dimensión Teórica | Reactivo en Encuesta Local (Ítem) | Tipo de Dato |
+| :--- | :--- | :--- | :--- | :--- |
+| `Ratio_Aprobacion_S2` | 0.29 (Alta) | **Integración Académica** | *"¿Cómo calificarías tu rendimiento en el último semestre?"* | Ordinal (1-5) |
+| `Course` / `Application_mode` | 0.08 (Media) | **Alineación Vocacional** | *"¿Qué tan satisfecho te sientes con la carrera elegida?"* | Ordinal (1-5) |
+| `Tuition_fees_up_to_date` | 0.10 (Alta) | **Estabilidad Financiera** | *"¿Cuentas con beca o apoyo económico?"* | Binario (Sí/No) |
+| `Target` (Variable Dependiente) | N/A | **Riesgo de Deserción** | *"¿Has considerado abandonar tus estudios?"* | Binario / Ordinal |
+
+> **Justificación del Diseño:** Este mapeo garantiza la **Validez de Constructo**. No estamos midiendo opiniones al azar; estamos midiendo la *percepción local* de las variables matemáticas que el algoritmo identificó como predictivas.
+
+### C.2 Diseño Muestral y Rigor Estadístico
+
+Se ejecutó un muestreo aleatorio simple en la Unidad Académica Casco Santo Tomás.
+
+#### Determinación del Tamaño de Muestra
+
+Se calculó el tamaño muestral necesario para validar hipótesis de asociación (no para inferencia poblacional censal), utilizando la fórmula para poblaciones finitas:
+
+$$ n = \frac{N \cdot Z^2 \cdot p \cdot (1-p)}{(N-1) \cdot E^2 + Z^2 \cdot p \cdot (1-p)} $$
+
+**Parámetros:**
+
+* **Población ($N$):** 1,890 estudiantes (Capacidad instalada operativa en turno activo).
+* **Nivel de Confianza ($Z$):** 90% ($Z=1.645$).
+* **Heterogeneidad ($p$):** 0.5 (Máxima incertidumbre conservadora).
+* **Muestra Efectiva ($n$):** 100 encuestas válidas.
+
+> **Cálculo del Margen de Error *A Posteriori*:**
+> Con $n=100$ y $N=1890$, el margen de error recalculado es de **$\pm 8.0\%$**.
+> *Validación:* Este margen es metodológicamente aceptable para la fase de **"Feature Validation Probe"** (Sondeo de Validación de Características), cuyo objetivo es evaluar la *existencia* de correlaciones (Rendimiento-Abandono, alienación vocacional, o estabilidad financiera), no estimar la *tasa exacta* de deserción con precisión decimal.
+
+### C.3 Resultados de las Pruebas de Hipótesis
+
+Una vez validada la muestra, se aplicaron pruebas no paramétricas.
+
+#### 1. Prueba de Independencia Chi-Cuadrado ($\chi^2$)
+
+**Objetivo:** Evaluar si la deserción es estadísticamente dependiente de factores académicos.
+
+$$ \chi^2 = \sum \frac{(O_i - E_i)^2}{E_i} $$
+
+| Hipótesis | Estadístico $\chi^2$ | P-valor | Interpretación Rigurosa |
+| :--- | :--- | :--- | :--- |
+| **H1: Rendimiento Académico** | 5.8101 | 0.0547 | **Asociación Marginal.** El p-valor supera ligeramente el $\alpha=0.05$. Esto se debe a la baja frecuencia esperada ($E_i < 5$) en la celda de "Reprobación Total", lo que resta potencia a la prueba, aunque la tendencia visual es clara. |
+| **H3: Alineación Vocacional** | **6.7594** | **0.0341** | **Significativa ($p<0.05$).** Se rechaza la hipótesis nula. Existe evidencia estadística suficiente para afirmar que el desajuste vocacional es un predictor activo. |
+
+![Distribución de Rendimiento vs Abandono](figures/hipotesis_1_rendimiento_vs_abandono.png)
+*Fig C.1. Distribución porcentual de deserción según nivel de rendimiento.*
+
+#### 2. Prueba H de Kruskal-Wallis (Análisis de Intensidad)
+
+Dado que el Chi-Cuadrado mostró marginalidad en H1, se aplicó una prueba de suma de rangos para evaluar la **intensidad** del fenómeno (variable ordinal), que es más robusta.
+
+$$ H = (N-1) \frac{\sum_{i=1}^{g} n_i (\bar{r}_{i\cdot} - \bar{r})^2}{\sum_{i=1}^{g} \sum_{j=1}^{n_i} (r_{ij} - \bar{r})^2} $$
+
+* **Estadístico H:** 8.3955
+* **P-valor:** **0.0150** (Altamente Significativo)
+* **Conclusión:** El análisis de varianza por rangos confirma lo que el Chi-Cuadrado sugirió: existe una diferencia estocástica significativa. Los estudiantes con bajo rendimiento experimentan una **intensidad de ideación de abandono** superior a la mediana poblacional.
+
+![Análisis Ordinal](figures/ordinal_rendimiento_vs_frecuencia.png)
+*Fig C.2. Frecuencia de pensamientos de abandono segmentada por rendimiento.*
 
 ---
 
@@ -396,9 +400,15 @@ Se presenta el desglose detallado del **Costo Total de Propiedad (TCO)** para la
 >
 > Respecto a la infraestructura ($1,500 USD/mes), se contempla una arquitectura de nube escalable (e.g., AWS o Azure) suficiente para procesar el volumen transaccional de 57,000 estudiantes, incluyendo instancias de cómputo dedicadas para el modelo de Machine Learning, bases de datos relacionales gestionadas y almacenamiento redundante con protocolos de seguridad empresarial.
 
-**Conclusión Financiera:**
+#### Conclusión Financiera: Cálculo del ROI Social
 
-La estrategia de desarrollo interno genera un **ahorro del 69%** en un horizonte de 3 años, liberando aproximadamente **13 millones de pesos mexicanos** (~$660,000 USD) que pueden reasignarse a la contratación de más tutores humanos o becas, maximizando el impacto social del presupuesto.
+$$ \Delta_{\text{Ahorro}} = \text{TCO}_{\text{SaaS}} - \text{TCO}_{\text{In-House}} = \$955,000 - \$295,000 = \mathbf{\$660,000 \text{ USD}} $$
+
+$$ \% \text{Eficiencia} = \left( \frac{660,000}{955,000} \right) \times 100 \approx \mathbf{69.1\%} $$
+
+La estrategia de desarrollo interno genera un **ahorro del 69%** en un horizonte de 3 años, liberando aproximadamente **$660,000 USD** que pueden reasignarse a la contratación de más tutores humanos o becas, maximizando el impacto social del presupuesto.
+
+> **Nota:** Asumiendo una moneda de cambio de 20 MXN/USD, el ahorro se traduce en aproximadamente **13 millones de pesos mexicanos** (~$660,000 USD).
 
 ---
 
@@ -412,7 +422,7 @@ La estrategia de desarrollo interno genera un **ahorro del 69%** en un horizonte
 
 3. **Repositorio de Código:** Disponible en `src/` y `notebooks/` para revisión de pares.
 
-4. **Repositorio de Datos:** Disponible en Github: [Dropout MLE Model](https://github.com/arianstoned/dropout_MLE_model)
+4. **Repositorio de Datos:** Disponible en Github: [Dropout MLE Model](https://github.com/ArianScripter33/dropout_MLE_model)
 
 ---
 
