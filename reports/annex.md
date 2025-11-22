@@ -403,6 +403,27 @@ Se presenta el desglose detallado del **Costo Total de Propiedad (TCO)** para la
 >
 > Respecto a la infraestructura ($1,500 USD/mes), se contempla una arquitectura de nube escalable (e.g., AWS o Azure) suficiente para procesar el volumen transaccional de 57,000 estudiantes, incluyendo instancias de cómputo dedicadas para el modelo de Machine Learning, bases de datos relacionales gestionadas y almacenamiento redundante con protocolos de seguridad empresarial.
 
+### D.4 El Costo de la Inacción (Pérdida Patrimonial)
+
+La justificación fundamental del proyecto SAREP radica en el alto costo de no intervenir. A continuación se detalla el cálculo de la pérdida económica actual derivada de la deserción.
+
+**1. Origen de la Cifra de Bajas (18,636 Estudiantes):**
+Proveniente de la reconstrucción forense de datos longitudinales (Numeralia UNRC 2021-2025), esta cifra representa el acumulado de bajas definitivas en el periodo 2022-2025.
+
+* *Contraste:* 18,636 bajas vs 970 titulados (Ratio ~20:1).
+
+**2. Costo Hundido Unitario ($69,411 MXN):**
+Basado en Castillero et al. (2019), representa el Costo Económico Promedio No Recuperable por estudiante que deserta en educación superior pública.
+
+**3. Cálculo de la Pérdida Anual Estimada:**
+
+$$ \text{Bajas Anuales} \approx \frac{18,636}{3} = 6,212 \text{ estudiantes/año} $$
+
+$$ \text{Pérdida Anual} = 6,212 \times \$69,411 \approx \mathbf{\$431,181,132 \text{ MXN}} $$
+
+> **Interpretación Estratégica:**
+> La pérdida anual supera los **$431 Millones de Pesos** (>$20M USD). Esta cifra contrasta dramáticamente con el costo de implementación del SAREP (~$135,000 USD en Año 1), demostrando que la inversión en retención se paga por sí sola al rescatar apenas una fracción mínima de la matrícula en riesgo.
+
 #### Conclusión Financiera: Cálculo del ROI Social
 
 $$ \Delta_{\text{Ahorro}} = \text{TCO}_{\text{SaaS}} - \text{TCO}_{\text{In-House}} = \$955,000 - \$295,000 = \mathbf{\$660,000 \text{ USD}} $$
