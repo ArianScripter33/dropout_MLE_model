@@ -6,6 +6,31 @@
 
 Este repositorio contiene la evidencia metodológica, el código fuente y los resultados del estudio **"De la Puerta Giratoria a la Vía de Graduación"**. El proyecto implementa un sistema predictivo y de intervención temprana para reducir la deserción estudiantil en la Universidad Nacional Rosario Castellanos (UNRC), utilizando técnicas de Machine Learning (XGBoost) y análisis estadístico riguroso.
 
+### Arquitectura del Proyecto
+
+```mermaid
+graph TD
+    subgraph Data Sources [Fuentes de Datos]
+        A[Datos Históricos<br/>(UNRC Numeralia)] --> C{Estrategia<br/>Híbrida}
+        B[Proxy Data<br/>(UCI Repository)] --> C
+    end
+
+    subgraph Modeling Engine [Motor de IA]
+        C --> D[EDA & Preprocessing<br/>(Limpieza, SMOTE)]
+        D --> E[Modelo XGBoost<br/>(Clasificación Binaria)]
+        E -->|Feature Importance| F[Generación de Hipótesis]
+    end
+
+    subgraph Validation [Validación Empírica]
+        F --> G[Encuesta de Campo<br/>(n=100 Estudiantes)]
+        G -->|Confirmación Estadística| H[Dashboard SAREP<br/>(Interfaz de Tutores)]
+        H --> I[Intervención Temprana<br/>(Retención)]
+    end
+
+    style E fill:#ff9900,stroke:#333,stroke-width:2px,color:white
+    style H fill:#ff4b4b,stroke:#333,stroke-width:2px,color:white
+```
+
 ## Mapa del Repositorio
 
 Este compendio digital está estructurado para facilitar la auditoría de los resultados presentados en el informe técnico:
