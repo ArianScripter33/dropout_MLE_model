@@ -11,20 +11,20 @@ Este repositorio contiene la evidencia metodológica, el código fuente y los re
 ```mermaid
 graph TD
     subgraph Data Sources [Fuentes de Datos]
-        A[Datos Históricos<br/>(UNRC Numeralia)] --> C{Estrategia<br/>Híbrida}
-        B[Proxy Data<br/>(UCI Repository)] --> C
+        A["Datos Históricos (UNRC Numeralia)"] --> C{"Estrategia Híbrida"}
+        B["Proxy Data (UCI Repository)"] --> C
     end
 
     subgraph Modeling Engine [Motor de IA]
-        C --> D[EDA & Preprocessing<br/>(Limpieza, SMOTE)]
-        D --> E[Modelo XGBoost<br/>(Clasificación Binaria)]
-        E -->|Feature Importance| F[Generación de Hipótesis]
+        C --> D["EDA & Preprocessing (Limpieza, SMOTE)"]
+        D --> E["Modelo XGBoost (Clasificación Binaria)"]
+        E -->|Feature Importance| F["Generación de Hipótesis"]
     end
 
     subgraph Validation [Validación Empírica]
-        F --> G[Encuesta de Campo<br/>(n=100 Estudiantes)]
-        G -->|Confirmación Estadística| H[Dashboard SAREP<br/>(Interfaz de Tutores)]
-        H --> I[Intervención Temprana<br/>(Retención)]
+        F --> G["Encuesta de Campo (n=100 Estudiantes)"]
+        G -->|Confirmación Estadística| H["Dashboard SAREP (Interfaz de Tutores)"]
+        H --> I["Intervención Temprana (Retención)"]
     end
 
     style E fill:#ff9900,stroke:#333,stroke-width:2px,color:white
