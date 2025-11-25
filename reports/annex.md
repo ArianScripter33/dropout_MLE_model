@@ -128,6 +128,20 @@ Las variables económicas (`GDP`, `Inflation`, `Unemployment`) no son constantes
 
 Una vez diagnosticado el problema macro (Sección A), y ante la falta de datos históricos granulares (Cold Start), se procedió a entrenar el motor predictivo utilizando el Dataset Proxy caracterizado anteriormente. El objetivo de esta fase fue identificar las variables críticas (*Feature Importance*) que gobiernan el fenómeno de la deserción.
 
+### B.0 Benchmarking y Justificación de Complejidad
+
+Antes de seleccionar XGBoost como motor definitivo, se estableció una línea base rigurosa comparando su desempeño contra algoritmos más simples para justificar la complejidad computacional.
+
+**Resultados del Experimento Comparativo:**
+
+| Modelo | Tipo | AUC-ROC | F1-Score (Dropout) | Observación |
+| :--- | :--- | :---: | :---: | :--- |
+| **Regresión Logística** | Lineal / Interpretable | 0.9286 | 0.80 | Gran desempeño, sugiere linealidad en variables clave. |
+| **Random Forest** | Ensamble / No Lineal | 0.9328 | 0.81 | Muy robusto, casi iguala a XGBoost. |
+| **XGBoost (Final)** | Boosting / Gradiente | **0.9351** | **0.82** | **Superior.** Maximiza la detección de casos límite. |
+
+> **Conclusión:** Aunque los modelos base tienen un rendimiento excelente (lo que valida la calidad de los datos), **XGBoost** se mantiene como la opción ganadora por su capacidad de optimización fina (hiperparámetros) y manejo nativo de valores nulos, ofreciendo ese "extra" de precisión vital para un sistema de alerta temprana.
+
 Se implementó una estrategia evolutiva de modelado, pasando de un enfoque generalista (Multiclase) a uno especializado en detección de riesgos (Binario).
 
 ### B.1 Evolución de la Estrategia
