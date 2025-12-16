@@ -16,8 +16,13 @@ __pycache__/
 # *.csv
 # *.parquet
 
-# Model files - Usually ignored as they can be large
-*.pklmodels/xgboost_model.pkl
+# Model files
+*.pkl
+
+# Virtual Environments
+venv/
+.venv/
+env/
 
 # Streamlit config folder
 .streamlit/

@@ -128,19 +128,27 @@ Las variables económicas (`GDP`, `Inflation`, `Unemployment`) no son constantes
 
 Una vez diagnosticado el problema macro (Sección A), y ante la falta de datos históricos granulares (Cold Start), se procedió a entrenar el motor predictivo utilizando el Dataset Proxy caracterizado anteriormente. El objetivo de esta fase fue identificar las variables críticas (*Feature Importance*) que gobiernan el fenómeno de la deserción.
 
-### B.0 Benchmarking y Justificación de Complejidad
+### B.0 Benchmarking de Modelos y Justificación Económica
 
-Antes de seleccionar XGBoost como motor definitivo, se estableció una línea base rigurosa comparando su desempeño contra algoritmos más simples para justificar la complejidad computacional.
+Antes de seleccionar XGBoost como motor definitivo, se estableció una línea base rigurosa comparando su desempeño contra algoritmos más simples (Regresión Logística) y robustos (Random Forest) para justificar la complejidad computacional.
 
-**Resultados del Experimento Comparativo:**
+**Tabla Comparativa de Desempeño (Test Set):**
 
-| Modelo | Tipo | AUC-ROC | F1-Score (Dropout) | Observación |
-| :--- | :--- | :---: | :---: | :--- |
-| **Regresión Logística** | Lineal / Interpretable | 0.9286 | 0.80 | Gran desempeño, sugiere linealidad en variables clave. |
-| **Random Forest** | Ensamble / No Lineal | 0.9328 | 0.81 | Muy robusto, casi iguala a XGBoost. |
-| **XGBoost (Final)** | Boosting / Gradiente | **0.9351** | **0.82** | **Superior.** Maximiza la detección de casos límite. |
+| Modelo | Tipo | AUC-ROC | F1-Score (Dropout) | Recall (Sensibilidad) |
+| :--- | :--- | :---: | :---: | :---: |
+| **Regresión Logística** | Lineal / Interpretable | 0.9286 | 0.81 | 75.00% |
+| **Random Forest** | Ensamble / No Lineal | 0.9328 | 0.81 | 76.76% |
+| **XGBoost (Final)** | Boosting / Gradiente | **0.9351** | **0.82** | **78.00%** |
 
-> **Conclusión:** Aunque los modelos base tienen un rendimiento excelente (lo que valida la calidad de los datos), **XGBoost** se mantiene como la opción ganadora por su capacidad de optimización fina (hiperparámetros) y manejo nativo de valores nulos, ofreciendo ese "extra" de precisión vital para un sistema de alerta temprana.
+> **Análisis de Impacto Financiero: El Valor del "Pequeño" Margen**
+>
+> A primera vista, la mejora de XGBoost sobre Random Forest parece marginal (+1.24% en Recall). Sin embargo, en la escala de la UNRC, este margen es financieramente crítico:
+>
+> * **Bajas Anuales:** ~6,212 estudiantes.
+> * **Alumnos Adicionales Detectados:** $6,212 \times 1.24\% \approx \mathbf{76 \text{ estudiantes/año}}$.
+> * **Ahorro Patrimonial Extra:** $76 \times \$69,411 \text{ MXN} \approx \mathbf{\$5,344,216 \text{ MXN}}$.
+>
+> **Conclusión:** La elección de XGBoost no es por "moda tecnológica", sino por rentabilidad. Ese 1.24% extra de sensibilidad representa **más de 5 millones de pesos anuales** en retención potencial que los otros modelos dejarían escapar.
 
 Se implementó una estrategia evolutiva de modelado, pasando de un enfoque generalista (Multiclase) a uno especializado en detección de riesgos (Binario).
 

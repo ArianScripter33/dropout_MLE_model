@@ -8,6 +8,13 @@
 
 Este repositorio contiene la evidencia metodológica, el código fuente y los resultados del estudio **"De la Puerta Giratoria a la Vía de Graduación"**. El proyecto implementa un sistema predictivo y de intervención temprana para reducir la deserción estudiantil en la Universidad Nacional Rosario Castellanos (UNRC), utilizando técnicas de Machine Learning (XGBoost) y análisis estadístico riguroso.
 
+### 📄 Documentación Oficial
+
+Acceso directo a los entregables clave del proyecto:
+
+- **📕 Reporte Técnico Final:** [SAREP_Final_Report.pdf](references/SAREP_Final_Report.pdf)
+- **📊 Presentación Ejecutiva:** [Exposicion_Final.pdf](references/Exposicion_Final.pdf)
+
 ### Arquitectura del Proyecto
 
 ```mermaid
