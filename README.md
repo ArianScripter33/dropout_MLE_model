@@ -68,7 +68,7 @@ Para replicar el entorno de análisis y ejecutar el dashboard:
     streamlit run app/dashboard_unrc.py
     ```
 
-    *(Nota: Asegúrese de estar en el directorio raíz del proyecto)*
+    *(Nota: Asegúrate de estar en el directorio raíz del proyecto)*
 
 ---
 *Proyecto desarrollado para la Universidad Nacional de Rosario Castellanos (UNRC).*
